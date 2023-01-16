@@ -31,4 +31,14 @@
         "avocado",
         "egg",
     ],
+    "egg/yolk": [
+        "egg",
+    ],
+    "egg/white": [
+        "egg",
+    ],
+    "mayo": [
+        "oil/avocado",
+        "egg/yolk",
+    ],
 }
