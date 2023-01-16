@@ -18,7 +18,7 @@ pub mod types;
 mod tests;
 
 fn recipe(
-    recipes: HashMap<Recipe, Vec<Ingredient>>,
+    recipes: Vec<Recipe>,
     has_ingredients: Vec<Ingredient>,
 ) {
     // convert to String
@@ -28,7 +28,6 @@ fn recipe(
 
     let can_make = res.can_make;
     let missing = res.missing;
-    let needs_ingredient = res.needs_ingredient;
     println!("Can make: {can_make:?}");
     println!("Missing: {missing:?}");
 }
@@ -38,7 +37,7 @@ fn main() {
     // start with 'recipes.txt'
     let recipe_contents = std::fs::read_to_string("facts/recipes.ron").unwrap();
     let recipes_data: HashMap<String, Vec<String>> = ron::from_str(&recipe_contents).unwrap();
-    let recipes = Recipe::from_hashmap(recipes_data);
+    let recipes = Recipe::from_hashmap(recipes_data).into_keys().collect();
 
     let inventory_contents = std::fs::read_to_string("facts/inventory.ron").unwrap();
     let inventory_data: Vec<String> = ron::from_str(&inventory_contents).unwrap();
