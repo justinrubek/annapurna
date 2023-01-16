@@ -28,7 +28,9 @@ ascent! {
     // the below implementation of `missing` does filter out the ingredients that are present
     relation missing_ingredients(Recipe, Vec<Ingredient>);
     missing_ingredients(recipe, missing) <--
-        missing(recipe, contents),
+        recipe_ingredients(recipe, contents),
+        for ingredient in contents.iter(),
+        !has(ingredient),
         agg missing = (vec_missing(contents.to_vec()))(x) in has(x);
 
     relation can_make(Recipe);
