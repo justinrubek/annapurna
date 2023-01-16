@@ -45,27 +45,17 @@ impl RecipeManager {
 
     /// Prepare the ascent program for running
     pub(crate) fn get_program(&self) -> RecipeProgram {
-        // Create a needs entry for each ingredient in each recipe
-        let needs = self
-            .recipes
-            .iter()
-            .flat_map(|(recipe, ingredients)| {
-                ingredients
-                    .iter()
-                    .map(move |ingredient| (recipe.clone().name, ingredient.clone().name))
-            })
-            .collect::<Vec<(Recipe, Ingredient)>>();
-
         let has = self
             .available_ingredients
-            .clone()
-            .into_iter()
+            .iter()
             .map(|i| (i.to_string(),))
             .collect();
 
+        let needs_ingredient = types::Recipe::flatten(self.recipes.clone());
+
         RecipeProgram {
             has,
-            needs_ingredient: needs,
+            needs_ingredient,
             ..Default::default()
         }
     }

@@ -48,6 +48,17 @@ impl Recipe {
             })
             .collect::<HashMap<Recipe, Vec<Ingredient>>>()
     }
+
+    pub fn flatten(items: HashMap<Recipe, Vec<Ingredient>>) -> Vec<(String, String)> {
+        items
+            .into_iter()
+            .flat_map(|(recipe, ingredients)| {
+                ingredients
+                    .into_iter()
+                    .map(move |ingredient| (recipe.to_string(), ingredient.to_string()))
+            })
+            .collect()
+    }
 }
 
 impl std::string::ToString for Recipe {
