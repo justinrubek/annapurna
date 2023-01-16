@@ -1,5 +1,6 @@
 #![allow(clippy::clone_on_copy)]
 #![allow(clippy::let_unit_value)]
+#![allow(clippy::just_underscores_and_digits)]
 #![allow(clippy::unused_unit)]
 
 use ascent::ascent;
@@ -12,17 +13,16 @@ type Recipe = String;
 
 ascent! {
     pub (crate) struct RecipeProgram;
-    relation needs_ingredient(Recipe, Ingredient);
+    relation recipe_ingredients(Recipe, Vec<Ingredient>);
     relation has(Ingredient);
 
     relation is_recipe(Recipe);
-    is_recipe(x) <-- needs_ingredient(x, _);
+    is_recipe(x) <-- recipe_ingredients(x, _);
 
-    relation missing(Recipe, Ingredient);
-    missing(recipe, ingredient) <-- needs_ingredient(recipe, ingredient), !has(ingredient);
-
+    relation missing(Recipe, Vec<Ingredient>);
+    missing(recipe, contents) <-- recipe_ingredients(recipe, contents), for ingredient in contents.iter(), !has(ingredient);
+        
     relation can_make(Recipe);
-
     can_make(recipe) <-- is_recipe(recipe), !missing(recipe, _);
 }
 
@@ -50,20 +50,24 @@ impl RecipeManager {
             .map(|i| (i.to_string(),))
             .collect();
 
-        let needs_ingredient = self
+        let recipe_ingredients = self
             .recipes
             .iter()
-            .flat_map(|recipe| {
-                recipe
-                    .ingredients
-                    .iter()
-                    .map(move |ingredient| (recipe.name.clone(), ingredient.to_string()))
+            .map(|recipe| {
+                (
+                    recipe.name.clone(),
+                    recipe
+                        .ingredients
+                        .iter()
+                        .map(|i| i.to_string())
+                        .collect::<Vec<String>>(),
+                )
             })
             .collect();
 
         RecipeProgram {
             has,
-            needs_ingredient,
+            recipe_ingredients,
             ..Default::default()
         }
     }
@@ -82,12 +86,7 @@ impl AscentProgram for RecipeManager {
         let program = self.run();
         RecipeResult {
             can_make: program.can_make.into_iter().map(|(r,)| r).collect(),
-            missing: program.missing.into_iter().map(|(r, i)| (r, i)).collect(),
-            needs_ingredient: program
-                .needs_ingredient
-                .into_iter()
-                .map(|(r, i)| (r, i))
-                .collect(),
+            missing: program.missing.into_iter().collect(),
         }
     }
 }
@@ -95,6 +94,5 @@ impl AscentProgram for RecipeManager {
 #[derive(Debug)]
 pub struct RecipeResult {
     pub can_make: Vec<Recipe>,
-    pub missing: Vec<(Recipe, Ingredient)>,
-    pub needs_ingredient: Vec<(Recipe, Ingredient)>,
+    pub missing: Vec<(Recipe, Vec<Ingredient>)>,
 }
