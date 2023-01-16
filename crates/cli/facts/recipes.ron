@@ -1,0 +1,34 @@
+{
+    "lean-bread": [
+        "flour",
+        "water",
+        "salt",
+        "yeast",
+    ],
+    "simple-curry": [
+        "gochugaru",
+        "tomato/puree",
+        "coconut milk",
+        "salt",
+        "turmeric/powder",
+        "cumin",
+        "onion",
+        "pepper",
+    ],
+    "fried-rice": [
+        "rice",
+        "egg",
+        "msg",
+        "onion/green",
+    ],
+    "egg-burrito": [
+        "tortilla",
+        "egg",
+        "hasbrown/patty",
+    ],
+    "avocado-toast": [
+        "bread",
+        "avocado",
+        "egg",
+    ],
+}
