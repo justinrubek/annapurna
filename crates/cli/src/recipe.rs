@@ -1,7 +1,6 @@
 #![allow(clippy::clone_on_copy)]
 #![allow(clippy::let_unit_value)]
 #![allow(clippy::unused_unit)]
-use std::collections::HashMap;
 
 use ascent::ascent;
 
@@ -29,13 +28,13 @@ ascent! {
 
 pub struct RecipeManager {
     available_ingredients: Vec<types::Ingredient>,
-    recipes: HashMap<types::Recipe, Vec<types::Ingredient>>,
+    recipes: Vec<types::Recipe>,
 }
 
 impl RecipeManager {
     pub fn new(
         available_ingredients: Vec<types::Ingredient>,
-        recipes: HashMap<types::Recipe, Vec<types::Ingredient>>,
+        recipes: Vec<types::Recipe>,
     ) -> Self {
         Self {
             available_ingredients,
@@ -51,7 +50,16 @@ impl RecipeManager {
             .map(|i| (i.to_string(),))
             .collect();
 
-        let needs_ingredient = types::Recipe::flatten(self.recipes.clone());
+        let needs_ingredient = self
+            .recipes
+            .iter()
+            .flat_map(|recipe| {
+                recipe
+                    .ingredients
+                    .iter()
+                    .map(move |ingredient| (recipe.name.clone(), ingredient.to_string()))
+            })
+            .collect();
 
         RecipeProgram {
             has,
