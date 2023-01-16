@@ -12,7 +12,7 @@ ascent! {
     path(x, z) <-- edge(x, y), path(y, z);
 }
 
-pub (crate) fn run(edges: Vec<(i32, i32)>) -> Vec<(i32, i32)> {
+pub(crate) fn run(edges: Vec<(i32, i32)>) -> Vec<(i32, i32)> {
     // let mut prog = AscentProgram::default();
     // prog.edge = vec![(1, 2), (2, 3)];
     let mut prog = NamedExample {

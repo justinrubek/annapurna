@@ -14,11 +14,19 @@ use program::AscentProgram;
 fn recipe() {
     let mut recipes = HashMap::new();
     recipes.insert("bread", vec!["flour", "water", "salt", "yeast"]);
-    recipes.insert("cake", vec!["flour", "sugar", "butter", "eggs", "milk", "salt"]);
+    recipes.insert(
+        "cake",
+        vec!["flour", "sugar", "butter", "eggs", "milk", "salt"],
+    );
     // convert recipe contents to strings
     let recipes = recipes
         .into_iter()
-        .map(|(recipe, ingredients)| (recipe.to_string(), ingredients.into_iter().map(|i| i.to_string()).collect()))
+        .map(|(recipe, ingredients)| {
+            (
+                recipe.to_string(),
+                ingredients.into_iter().map(|i| i.to_string()).collect(),
+            )
+        })
         .collect();
 
     let has_ingredients = vec!["flour", "water", "salt", "yeast", "butter"];
@@ -26,10 +34,7 @@ fn recipe() {
     // convert to String
     let has_ingredients = has_ingredients.into_iter().map(|i| i.to_string()).collect();
 
-    let manager = RecipeManager::new(
-        has_ingredients,
-        recipes,
-    );
+    let manager = RecipeManager::new(has_ingredients, recipes);
 
     let res = manager.process();
 
@@ -54,4 +59,3 @@ fn example() {
     let connected = named_run(edges);
     println!("Connected: {connected:?}");
 }
-
