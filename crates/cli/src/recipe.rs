@@ -5,6 +5,8 @@ use std::collections::HashMap;
 
 use ascent::ascent;
 
+use crate::program::AscentProgram;
+
 type Ingredient = String;
 type Recipe = String;
 
@@ -61,8 +63,12 @@ impl RecipeManager {
         program.run();
         program
     }
+}
 
-    pub fn process(&self) -> RecipeResult {
+impl AscentProgram for RecipeManager {
+    type Output = RecipeResult;
+
+    fn process(&self) -> Self::Output {
         let program = self.run();
         RecipeResult {
             can_make: program.can_make.into_iter().map(|(r,)| r).collect(),

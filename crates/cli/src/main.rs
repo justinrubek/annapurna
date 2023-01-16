@@ -8,6 +8,9 @@ use named::run as named_run;
 mod recipe;
 use recipe::RecipeManager;
 
+pub mod program;
+use program::AscentProgram;
+
 fn recipe() {
     let mut recipes = HashMap::new();
     recipes.insert("bread", vec!["flour", "water", "salt", "yeast"]);
