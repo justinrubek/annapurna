@@ -8,7 +8,7 @@ mod named;
 use named::run as named_run;
 
 mod recipe;
-use recipe::{RecipeManager, neo_recipe_program};
+use recipe::RecipeManager;
 
 pub mod program;
 use program::AscentProgram;
@@ -19,10 +19,7 @@ pub mod types;
 #[cfg(test)]
 mod tests;
 
-fn recipe(
-    recipes: Vec<Recipe>,
-    has_ingredients: Vec<Ingredient>,
-) {
+fn recipe(recipes: Vec<Recipe>, has_ingredients: Vec<Ingredient>) {
     // convert to String
     let manager = RecipeManager::new(has_ingredients, recipes);
 
@@ -43,18 +40,12 @@ fn main() {
 
     let inventory_contents = std::fs::read_to_string("facts/inventory.ron").unwrap();
     let inventory_data: Vec<String> = ron::from_str(&inventory_contents).unwrap();
-    let inventory: Vec<Ingredient> = inventory_data
-        .into_iter()
-        .map(Ingredient::new)
-        .collect();
+    let inventory: Vec<Ingredient> = inventory_data.into_iter().map(Ingredient::new).collect();
 
     println!("Recipes:");
     // recipes.iter().for_each(|r| println!("{r}"));
 
-    recipe(
-        recipes,
-        inventory,
-    );
+    recipe(recipes, inventory);
 }
 
 #[allow(dead_code)]
@@ -66,5 +57,3 @@ fn example() {
     let connected = named_run(edges);
     println!("Connected: {connected:?}");
 }
-
-

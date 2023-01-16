@@ -3,7 +3,9 @@
 #![allow(clippy::just_underscores_and_digits)]
 #![allow(clippy::unused_unit)]
 
-use ascent::{ascent, ascent_run};
+use std::collections::HashMap;
+
+use ascent::ascent;
 
 use crate::aggregators::vec_missing;
 use crate::program::AscentProgram;
@@ -28,7 +30,7 @@ ascent! {
     missing_ingredients(recipe, missing) <--
         missing(recipe, contents),
         agg missing = (vec_missing(contents.to_vec()))(x) in has(x);
-        
+
     relation can_make(Recipe);
     can_make(recipe) <-- is_recipe(recipe), !missing(recipe, _);
 }
@@ -39,10 +41,7 @@ pub struct RecipeManager {
 }
 
 impl RecipeManager {
-    pub fn new(
-        available_ingredients: Vec<types::Ingredient>,
-        recipes: Vec<types::Recipe>,
-    ) -> Self {
+    pub fn new(available_ingredients: Vec<types::Ingredient>, recipes: Vec<types::Recipe>) -> Self {
         Self {
             available_ingredients,
             recipes,
@@ -93,7 +92,13 @@ impl AscentProgram for RecipeManager {
         let program = self.run();
         RecipeResult {
             can_make: program.can_make.into_iter().map(|(r,)| r).collect(),
-            missing: program.missing_ingredients.into_iter().collect(),
+            missing: program.missing_ingredients.into_iter().fold(
+                HashMap::new(),
+                |mut acc, (recipe, missing)| {
+                    acc.insert(recipe, missing);
+                    acc
+                },
+            ),
         }
     }
 }
@@ -101,5 +106,6 @@ impl AscentProgram for RecipeManager {
 #[derive(Debug)]
 pub struct RecipeResult {
     pub can_make: Vec<Recipe>,
-    pub missing: Vec<(Recipe, Vec<Ingredient>)>,
+    // pub missing: Vec<(Recipe, Vec<Ingredient>)>,
+    pub missing: HashMap<Recipe, Vec<Ingredient>>,
 }
