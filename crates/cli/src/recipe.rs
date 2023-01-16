@@ -59,9 +59,22 @@ impl RecipeManager {
     pub (crate) fn run(&self) -> RecipeProgram {
         let mut program = self.get_program();
         program.run();
-        // program.can_make.into_iter().map(|(r,)| r).collect()
-        // println!("Missing: {:#?}", program.missing);
-        println!("Can make: {:#?}", program.can_make);
         program
     }
+
+    pub fn process(&self) -> RecipeResult {
+        let program = self.run();
+        RecipeResult {
+            can_make: program.can_make.into_iter().map(|(r,)| r).collect(),
+            missing: program.missing.into_iter().map(|(r, i)| (r, i)).collect(),
+            needs_ingredient: program.needs_ingredient.into_iter().map(|(r, i)| (r, i)).collect(),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct RecipeResult {
+    pub can_make: Vec<Recipe>,
+    pub missing: Vec<(Recipe, Ingredient)>,
+    pub needs_ingredient: Vec<(Recipe, Ingredient)>,
 }

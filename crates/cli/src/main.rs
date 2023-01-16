@@ -28,7 +28,7 @@ fn recipe() {
         recipes,
     );
 
-    let res = manager.run();
+    let res = manager.process();
 
     let can_make = res.can_make;
     let missing = res.missing;
