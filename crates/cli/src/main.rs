@@ -14,7 +14,13 @@ use types::{Ingredient, Recipe};
 
 pub mod types;
 
-fn recipe(recipes: HashMap<Recipe, Vec<Ingredient>>, has_ingredients: Vec<Ingredient>) {
+#[cfg(test)]
+mod tests;
+
+fn recipe(
+    recipes: HashMap<Recipe, Vec<Ingredient>>,
+    has_ingredients: Vec<Ingredient>,
+) {
     // convert to String
     let manager = RecipeManager::new(has_ingredients, recipes);
 
@@ -25,7 +31,6 @@ fn recipe(recipes: HashMap<Recipe, Vec<Ingredient>>, has_ingredients: Vec<Ingred
     let needs_ingredient = res.needs_ingredient;
     println!("Can make: {can_make:?}");
     println!("Missing: {missing:?}");
-    println!("Needs: {needs_ingredient:?}");
 }
 
 fn main() {
@@ -37,11 +42,17 @@ fn main() {
 
     let inventory_contents = std::fs::read_to_string("facts/inventory.ron").unwrap();
     let inventory_data: Vec<String> = ron::from_str(&inventory_contents).unwrap();
-    let inventory: Vec<Ingredient> = inventory_data.into_iter().map(Ingredient::new).collect();
+    let inventory: Vec<Ingredient> = inventory_data
+        .into_iter()
+        .map(Ingredient::new)
+        .collect();
 
     println!("Recipes:");
     // recipes.iter().for_each(|r| println!("{r}"));
-    recipe(recipes, inventory);
+    recipe(
+        recipes,
+        inventory,
+    );
 }
 
 #[allow(dead_code)]
@@ -53,3 +64,5 @@ fn example() {
     let connected = named_run(edges);
     println!("Connected: {connected:?}");
 }
+
+
