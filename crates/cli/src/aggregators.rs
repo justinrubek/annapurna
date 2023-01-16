@@ -13,11 +13,6 @@ where
             .filter(|ingredient| !available.contains(ingredient))
             .collect::<Vec<String>>();
 
-        /*
-        missing.into_iter().map(|ingredient| (ingredient,))
-            .collect::<Vec<(Ingredient,)>>()
-            .into_iter()
-        */
         vec![missing].into_iter()
     }
 }
