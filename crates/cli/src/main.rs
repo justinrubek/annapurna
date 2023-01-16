@@ -1,3 +1,5 @@
+mod aggregators;
+
 mod example;
 use std::collections::HashMap;
 
@@ -6,7 +8,7 @@ mod named;
 use named::run as named_run;
 
 mod recipe;
-use recipe::RecipeManager;
+use recipe::{RecipeManager, neo_recipe_program};
 
 pub mod program;
 use program::AscentProgram;
@@ -48,6 +50,7 @@ fn main() {
 
     println!("Recipes:");
     // recipes.iter().for_each(|r| println!("{r}"));
+
     recipe(
         recipes,
         inventory,
