@@ -3,8 +3,9 @@
 #![allow(clippy::just_underscores_and_digits)]
 #![allow(clippy::unused_unit)]
 
-use ascent::ascent;
+use ascent::{ascent, ascent_run};
 
+use crate::aggregators::vec_missing;
 use crate::program::AscentProgram;
 use crate::types;
 
@@ -21,6 +22,12 @@ ascent! {
 
     relation missing(Recipe, Vec<Ingredient>);
     missing(recipe, contents) <-- recipe_ingredients(recipe, contents), for ingredient in contents.iter(), !has(ingredient);
+    // the above implementation of `missing` does not filter out the ingredients that are present
+    // the below implementation of `missing` does filter out the ingredients that are present
+    relation missing_ingredients(Recipe, Vec<Ingredient>);
+    missing_ingredients(recipe, missing) <--
+        missing(recipe, contents),
+        agg missing = (vec_missing(contents.to_vec()))(x) in has(x);
         
     relation can_make(Recipe);
     can_make(recipe) <-- is_recipe(recipe), !missing(recipe, _);
@@ -86,7 +93,7 @@ impl AscentProgram for RecipeManager {
         let program = self.run();
         RecipeResult {
             can_make: program.can_make.into_iter().map(|(r,)| r).collect(),
-            missing: program.missing.into_iter().collect(),
+            missing: program.missing_ingredients.into_iter().collect(),
         }
     }
 }
