@@ -10,30 +10,12 @@ use recipe::RecipeManager;
 
 pub mod program;
 use program::AscentProgram;
+use types::{Ingredient, Recipe};
 
-fn recipe() {
-    let mut recipes = HashMap::new();
-    recipes.insert("bread", vec!["flour", "water", "salt", "yeast"]);
-    recipes.insert(
-        "cake",
-        vec!["flour", "sugar", "butter", "eggs", "milk", "salt"],
-    );
-    // convert recipe contents to strings
-    let recipes = recipes
-        .into_iter()
-        .map(|(recipe, ingredients)| {
-            (
-                recipe.to_string(),
-                ingredients.into_iter().map(|i| i.to_string()).collect(),
-            )
-        })
-        .collect();
+pub mod types;
 
-    let has_ingredients = vec!["flour", "water", "salt", "yeast", "butter"];
-
+fn recipe(recipes: HashMap<Recipe, Vec<Ingredient>>, has_ingredients: Vec<Ingredient>) {
     // convert to String
-    let has_ingredients = has_ingredients.into_iter().map(|i| i.to_string()).collect();
-
     let manager = RecipeManager::new(has_ingredients, recipes);
 
     let res = manager.process();
@@ -47,7 +29,19 @@ fn recipe() {
 }
 
 fn main() {
-    recipe();
+    // open the file in the crate's directory 'file/{}'
+    // start with 'recipes.txt'
+    let recipe_contents = std::fs::read_to_string("facts/recipes.ron").unwrap();
+    let recipes_data: HashMap<String, Vec<String>> = ron::from_str(&recipe_contents).unwrap();
+    let recipes = Recipe::from_hashmap(recipes_data);
+
+    let inventory_contents = std::fs::read_to_string("facts/inventory.ron").unwrap();
+    let inventory_data: Vec<String> = ron::from_str(&inventory_contents).unwrap();
+    let inventory: Vec<Ingredient> = inventory_data.into_iter().map(Ingredient::new).collect();
+
+    println!("Recipes:");
+    // recipes.iter().for_each(|r| println!("{r}"));
+    recipe(recipes, inventory);
 }
 
 #[allow(dead_code)]

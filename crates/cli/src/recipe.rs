@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use ascent::ascent;
 
 use crate::program::AscentProgram;
+use crate::types;
 
 type Ingredient = String;
 type Recipe = String;
@@ -27,14 +28,14 @@ ascent! {
 }
 
 pub struct RecipeManager {
-    available_ingredients: Vec<Ingredient>,
-    recipes: HashMap<Recipe, Vec<Ingredient>>,
+    available_ingredients: Vec<types::Ingredient>,
+    recipes: HashMap<types::Recipe, Vec<types::Ingredient>>,
 }
 
 impl RecipeManager {
     pub fn new(
-        available_ingredients: Vec<Ingredient>,
-        recipes: HashMap<Recipe, Vec<Ingredient>>,
+        available_ingredients: Vec<types::Ingredient>,
+        recipes: HashMap<types::Recipe, Vec<types::Ingredient>>,
     ) -> Self {
         Self {
             available_ingredients,
@@ -51,7 +52,7 @@ impl RecipeManager {
             .flat_map(|(recipe, ingredients)| {
                 ingredients
                     .iter()
-                    .map(move |ingredient| (recipe.clone(), ingredient.clone()))
+                    .map(move |ingredient| (recipe.clone().name, ingredient.clone().name))
             })
             .collect::<Vec<(Recipe, Ingredient)>>();
 
@@ -59,7 +60,7 @@ impl RecipeManager {
             .available_ingredients
             .clone()
             .into_iter()
-            .map(|i| (i,))
+            .map(|i| (i.to_string(),))
             .collect();
 
         RecipeProgram {
