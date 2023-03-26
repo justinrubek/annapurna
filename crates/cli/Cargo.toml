@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-ascent = "0.4.0"
+annapurna-logic = { path = "../logic" }
 clap = { version = "4.1.13", features = ["derive"] }
 ron = "0.8.0"
 # clap = { version = "4.0.19", features = ["derive"] }
