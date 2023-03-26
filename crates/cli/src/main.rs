@@ -8,7 +8,8 @@ use std::collections::HashMap;
 pub mod commands;
 use commands::{BasicCommands, Commands};
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
 
     let args = commands::Args::parse();
@@ -31,6 +32,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 recipe(recipes, inventory);
             }
         },
+        Commands::Server(server) => server.run().await?,
     }
 
     Ok(())
