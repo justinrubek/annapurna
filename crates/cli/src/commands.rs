@@ -1,3 +1,6 @@
+pub(crate) mod server;
+use server::ServerCommand;
+
 #[derive(clap::Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 pub(crate) struct Args {
@@ -8,6 +11,8 @@ pub(crate) struct Args {
 #[derive(clap::Subcommand, Debug)]
 pub(crate) enum Commands {
     Command(Command),
+    /// commands for running the server
+    Server(ServerCommand),
 }
 
 #[derive(clap::Args, Debug)]
