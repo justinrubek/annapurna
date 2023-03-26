@@ -21,6 +21,11 @@
       url = "github:justinrubek/bomper";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    dream2nix = {
+      url = "github:nix-community/dream2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
   };
 
   outputs = inputs @ {
@@ -32,8 +37,10 @@
     flake-parts.lib.mkFlake {inherit inputs;} {
       systems = ["x86_64-linux" "aarch64-linux"];
       imports = [
+        inputs.dream2nix.flakeModuleBeta
         inputs.pre-commit-hooks.flakeModule
 
+        ./flake-parts/astro.nix
         ./flake-parts/cargo.nix
         ./flake-parts/pre-commit.nix
         ./flake-parts/rust-toolchain.nix
