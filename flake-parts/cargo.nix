@@ -23,6 +23,9 @@
       # version control
       pkgs.cocogitto
       inputs'.bomper.packages.cli
+      # nodejs
+      self'.packages.nodejs
+      self'.packages.yarn
       # misc
     ];
 
