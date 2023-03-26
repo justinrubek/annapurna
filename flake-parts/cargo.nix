@@ -6,24 +6,33 @@
   imports = [];
 
   perSystem = {
+    config,
     pkgs,
     lib,
     system,
     inputs',
+    self',
     ...
   }: let
-    fenix-channel = inputs'.fenix.packages.latest;
-    fenix-toolchain = fenix-channel.withComponents [
-      "rustc"
-      "cargo"
-      "clippy"
-      "rust-analysis"
-      "rust-src"
-      "rustfmt"
-      "llvm-tools-preview"
+    devTools = [
+      # rust tooling
+      self'.packages.rust-toolchain
+      pkgs.cargo-audit
+      pkgs.cargo-udeps
+      pkgs.bacon
+      # version control
+      pkgs.cocogitto
+      inputs'.bomper.packages.cli
+      # misc
     ];
 
-    craneLib = inputs.crane.lib.${system}.overrideToolchain fenix-toolchain;
+    # packages required for building the rust packages
+    extraPackages = [
+      pkgs.pkg-config
+    ];
+    withExtraPackages = base: base ++ extraPackages;
+
+    craneLib = inputs.crane.lib.${system}.overrideToolchain self'.packages.rust-toolchain;
 
     common-build-args = rec {
       src = inputs.nix-filter.lib {
@@ -35,91 +44,67 @@
         ];
       };
 
-      pname = "rust-crane";
+      pname = "annapurna";
 
-      buildInputs = allBuildInputs [];
-      nativeBuildInputs = allNativeBuildInputs [];
-      LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath buildInputs;
+      nativeBuildInputs = withExtraPackages [];
+      LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath nativeBuildInputs;
+      SQLX_OFFLINE = true;
     };
+
     deps-only = craneLib.buildDepsOnly ({} // common-build-args);
-
-    clippy-check = craneLib.cargoClippy ({
-        cargoArtifacts = deps-only;
-        cargoClippyExtraArgs = "--all-features -- --deny warnings";
-      }
-      // common-build-args);
-
-    rust-fmt-check = craneLib.cargoFmt ({
-        inherit (common-build-args) src;
-      }
-      // common-build-args);
-
-    tests-check = craneLib.cargoNextest ({
-        cargoArtifacts = deps-only;
-        partitions = 1;
-        partitionType = "count";
-      }
-      // common-build-args);
-
-    pre-commit-hooks = inputs.pre-commit-hooks.lib.${system}.run {
-      inherit (common-build-args) src;
-      hooks = {
-        alejandra.enable = true;
-      };
-    };
-
-    cli-package = craneLib.buildPackage ({
-        pname = "cli";
-        cargoArtifacts = deps-only;
-        cargoExtraArgs = "--bin cli";
-      }
-      // common-build-args);
-
-    devTools = with pkgs; [
-      # rust tooling
-      fenix-toolchain
-      bacon
-      rustfmt
-      # version control
-      cocogitto
-      inputs'.bomper.packages.cli
-      # misc
-    ];
-
-    extraBuildInputs = [
-      pkgs.pkg-config
-    ];
-    extraNativeBuildInputs = [
-    ];
-
-    allBuildInputs = base: base ++ extraBuildInputs;
-    allNativeBuildInputs = base: base ++ extraNativeBuildInputs;
-  in rec {
-    devShells.default = pkgs.mkShell rec {
-      buildInputs = allBuildInputs [fenix-toolchain] ++ devTools;
-      nativeBuildInputs = allNativeBuildInputs [];
-      LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath buildInputs;
-      inherit (self.checks.${system}.pre-commit-hooks) shellHook;
-    };
 
     packages = {
       default = packages.cli;
-      cli = cli-package;
+      cli = craneLib.buildPackage ({
+          pname = "annapurna-cli";
+          cargoArtifacts = deps-only;
+          cargoExtraArgs = "--bin annapurna-cli";
+          meta.mainProgram = "annapurna-cli";
+        }
+        // common-build-args);
+      cargo-doc = craneLib.cargoDoc ({
+          cargoArtifacts = deps-only;
+        }
+        // common-build-args);
+    };
+
+    checks = {
+      clippy = craneLib.cargoClippy ({
+          cargoArtifacts = deps-only;
+          cargoClippyExtraArgs = "--all-features -- --deny warnings";
+        }
+        // common-build-args);
+
+      rust-fmt = craneLib.cargoFmt ({
+          inherit (common-build-args) src;
+        }
+        // common-build-args);
+
+      rust-tests = craneLib.cargoNextest ({
+          cargoArtifacts = deps-only;
+          partitions = 1;
+          partitionType = "count";
+        }
+        // common-build-args);
+    };
+  in rec {
+    inherit packages checks;
+
+    devShells.default = pkgs.mkShell rec {
+      packages = withExtraPackages devTools;
+      LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath packages;
+
+      shellHook = ''
+        ${config.pre-commit.installationScript}
+      '';
     };
 
     apps = {
       cli = {
         type = "app";
-        program = "${self.packages.${system}.cli}/bin/cli";
+        program = pkgs.lib.getBin self'.packages.cli;
       };
       default = apps.cli;
-    };
-
-    checks = {
-      inherit pre-commit-hooks;
-      clippy = clippy-check;
-      tests = tests-check;
-      rust-fmt = rust-fmt-check;
     };
   };
 }
