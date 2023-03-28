@@ -5,12 +5,15 @@ edition.workspace = true
 
 [dependencies]
 axum = { workspace = true }
-hyper = "0.14.24"
+html_editor = "0.5.2"
+http-body = "0.4.5"
+hyper = { workspace = true }
 lockpad-auth = { path = "../../../lockpad/crates/auth" }
 serde = { workspace = true }
 serde_json = "1.0.87"
 thiserror = { workspace = true }
 tokio = { workspace = true }
-tower = { version = "0.4", features = ["util"] }
-tower-http = { version = "0.3.0", features = ["fs", "cors"] }
+tower = { version = "0.4" }
+tower-http = { version = "0.3.0", features = ["fs", "cors", "map-response-body", "map-request-body", "util"] }
+tower-layer = "0.3.2"
 tracing = { workspace = true }
