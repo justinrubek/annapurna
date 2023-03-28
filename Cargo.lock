@@ -21,12 +21,14 @@ dependencies = [
  "annapurna-logic",
  "clap",
  "config",
+ "http-body",
  "lockpad-auth",
  "reqwest",
  "ron 0.8.0",
  "serde",
  "serde_json",
  "tokio",
+ "tracing",
  "tracing-subscriber",
 ]
 
@@ -35,6 +37,8 @@ name = "annapurna-http"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "html_editor",
+ "http-body",
  "hyper",
  "lockpad-auth",
  "serde",
@@ -43,6 +47,7 @@ dependencies = [
  "tokio",
  "tower",
  "tower-http",
+ "tower-layer",
  "tracing",
 ]
 
@@ -552,6 +557,12 @@ name = "hermit-abi"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fed44880c466736ef9a5c5b5facefb5ed0785676d0c02d612db14e54f0d84286"
+
+[[package]]
+name = "html_editor"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "956274d4a7c51572d2a27ff5be59bc14c500c679d9f0adb5cb7221e0911df56d"
 
 [[package]]
 name = "http"
@@ -1778,6 +1789,7 @@ dependencies = [
  "pin-project-lite",
  "tokio",
  "tokio-util",
+ "tower",
  "tower-layer",
  "tower-service",
 ]

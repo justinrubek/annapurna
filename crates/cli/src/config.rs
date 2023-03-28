@@ -1,8 +1,14 @@
+use std::path::PathBuf;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Config {
+    /// URL to auth service
     pub auth_url: String,
+    /// Path of static files to serve
+    #[serde(default = "default_static_path")]
+    pub static_path: PathBuf,
 }
 
 impl Config {
@@ -13,4 +19,8 @@ impl Config {
 
         config.try_deserialize()
     }
+}
+
+fn default_static_path() -> PathBuf {
+    PathBuf::from(".")
 }

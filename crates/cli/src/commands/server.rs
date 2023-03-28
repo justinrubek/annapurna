@@ -19,8 +19,10 @@ pub(crate) enum ServerCommands {
 impl ServerCommand {
     pub(crate) async fn run(&self) -> Result<(), Box<dyn std::error::Error>> {
         let config = Config::load()?;
-        let auth_url = config.auth_url;
+        tracing::info!("config: {:?}", config);
 
+        // Load auth keys
+        let auth_url = config.auth_url;
         let client = reqwest::Client::new();
         let res = client
             .get(format!("{auth_url}/.well-known/jwks.json"))
@@ -28,12 +30,12 @@ impl ServerCommand {
             .await
             .unwrap();
         let jwks_str = res.text().await.unwrap();
-
         let key_set = PublicKey::parse_from_jwks(&jwks_str)?;
 
         let server = annapurna_http::Server::builder()
             .addr(self.addr)
             .public_keys(key_set)
+            .static_path(config.static_path)
             .build()?;
 
         match self.command {
