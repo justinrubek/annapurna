@@ -1,4 +1,7 @@
+pub(crate) mod dev;
 pub(crate) mod server;
+
+use dev::DevCommand;
 use server::ServerCommand;
 
 #[derive(clap::Parser, Debug)]
@@ -13,6 +16,8 @@ pub(crate) enum Commands {
     Command(Command),
     /// commands for running the server
     Server(ServerCommand),
+    /// commands to use during development
+    Dev(DevCommand),
 }
 
 #[derive(clap::Args, Debug)]
