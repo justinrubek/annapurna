@@ -1,15 +1,9 @@
 use axum::{
-    body::{self, BoxBody, HttpBody},
-    extract::State,
-    http::{Request, StatusCode},
-    middleware::{self, Next},
-    response::{Html, IntoResponse, Response},
+    body::{self},
+    middleware,
+    response::Html,
     routing::{get, get_service},
     Router,
-};
-use html_editor::{
-    operation::{Editable, Htmlifiable, Selector},
-    Node,
 };
 use lockpad_auth::PublicKey;
 use std::{collections::HashMap, net::SocketAddr, path::PathBuf};
@@ -17,8 +11,10 @@ use tower::ServiceBuilder;
 use tower_http::{services::ServeDir, ServiceBuilderExt};
 
 pub mod error;
+mod serve;
 
 use error::Result;
+use serve::{handle_error, inject_variables_into_html, InjectorState};
 
 pub struct Server {
     addr: SocketAddr,
@@ -30,11 +26,6 @@ pub struct Server {
 #[derive(Clone)]
 pub struct ServerState {
     pub public_key: PublicKey,
-}
-
-#[derive(Clone, Debug)]
-pub struct FrontendState {
-    pub variables: HashMap<String, String>,
 }
 
 impl AsRef<PublicKey> for ServerState {
@@ -55,7 +46,7 @@ impl Server {
         let state = ServerState { public_key };
 
         // TODO: populate frontend_state with necessary variables
-        let mut frontend_state = FrontendState {
+        let mut frontend_state = InjectorState {
             variables: HashMap::new(),
         };
         frontend_state
@@ -86,65 +77,6 @@ impl Server {
 
         Ok(())
     }
-}
-
-async fn inject_variables_into_html(
-    State(state): State<FrontendState>,
-    request: Request<BoxBody>,
-    next: Next<BoxBody>,
-) -> std::result::Result<impl IntoResponse, Response> {
-    let response = next.run(request).await;
-
-    let (mut parts, body) = response.into_parts();
-
-    let is_html = parts
-        .headers
-        .get(hyper::header::CONTENT_TYPE)
-        .map(|value| value == "text/html")
-        .unwrap_or(false);
-
-    let body = match is_html {
-        true => {
-            // Extract the body and parse it into a dom
-            let bytes = hyper::body::to_bytes(body).await.unwrap();
-            let html = String::from_utf8(bytes.to_vec()).unwrap();
-            let mut dom = html_editor::parse(&html).unwrap();
-
-            // Add the variables to the dom
-            let nodes = state
-                .variables
-                .iter()
-                .map(|(key, value)| {
-                    Node::new_element(
-                        "div",
-                        vec![(&format!("data-config-{}", key), value)],
-                        vec![],
-                    )
-                })
-                .collect::<Vec<_>>();
-            let parent = Node::new_element("div", vec![("id", "injected-config")], nodes);
-            dom.insert_to(&Selector::from("body"), parent);
-
-            // Create a new response body
-            let new_html = dom.html();
-            let bytes = new_html.as_bytes().to_vec();
-            let body = body::boxed(axum::body::Full::from(bytes));
-
-            // update the content length header to match the new body
-            let content_length = body.size_hint().exact().unwrap();
-            parts.headers.insert(
-                hyper::header::CONTENT_LENGTH,
-                hyper::header::HeaderValue::from(content_length),
-            );
-
-            body
-        }
-        false => body,
-    };
-
-    let response = Response::from_parts(parts, body);
-
-    Ok(response)
 }
 
 pub struct Builder {
@@ -202,8 +134,4 @@ impl Default for Builder {
 
 async fn root() -> Html<String> {
     Html("<h1>Hello, world!</h1>".to_string())
-}
-
-async fn handle_error(_err: std::io::Error) -> impl IntoResponse {
-    (StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error")
 }

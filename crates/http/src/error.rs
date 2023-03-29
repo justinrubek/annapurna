@@ -1,12 +1,18 @@
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error(transparent)]
+    Axum(#[from] axum::Error),
+    #[error(transparent)]
     Hyper(#[from] hyper::Error),
     #[error(transparent)]
     LockpadAuth(#[from] lockpad_auth::error::Error),
+    #[error(transparent)]
+    FromUtf8(#[from] std::string::FromUtf8Error),
 
     #[error("Failed to build server struct")]
     ServerBuilder,
+    #[error("Invalid html file")]
+    InvalidHtml(String),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
