@@ -33,6 +33,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         },
         Commands::Server(server) => server.run().await?,
+        Commands::Dev(dev) => dev.run().await?,
     }
 
     Ok(())
