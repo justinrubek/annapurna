@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use annapurna::config::Config;
 use lockpad_auth::PublicKey;
 
@@ -43,10 +45,16 @@ impl ServerCommand {
         match self.command {
             ServerCommands::Http => server.run().await?,
             ServerCommands::Dev => {
+                // Determine the root of the repo so the command can be run from any directory
+                let (path, _trust) = gix_discover::upwards(Path::new("."))?;
+                let (_repo, worktree) = path.into_repository_and_work_tree_directories();
+                let worktree = worktree.expect("no worktree found");
+                let frontend_path = worktree.clone().join("web");
+
                 // launch yarn
                 let _child = tokio::process::Command::new("yarn")
                     .args(["dev"])
-                    .current_dir("./web")
+                    .current_dir(frontend_path)
                     .kill_on_drop(true)
                     .spawn()?;
 
