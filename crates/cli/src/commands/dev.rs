@@ -43,7 +43,9 @@ impl DevCommand {
 
 /// Watches all given paths for changes.
 /// Changes are debounced, and gathered into a list of events
-pub async fn async_debounce_watch<P: AsRef<Path>>(paths: Vec<P>) -> notify::Result<()> {
+pub async fn async_debounce_watch<P: AsRef<Path>>(
+    paths: Vec<P>,
+) -> Result<(), Box<dyn std::error::Error>> {
     // Create an AsyncDebouncer with a timeout of 1 second and a tick rate of 1 second.
     // Process it until the debouncer is dropped.
     let (tx, mut rx) = tokio::sync::mpsc::channel(100);
@@ -58,12 +60,25 @@ pub async fn async_debounce_watch<P: AsRef<Path>>(paths: Vec<P>) -> notify::Resu
             .unwrap();
     });
 
+    // when the files change, we want to trigger a `yarn run build` in `./web`
+    let mut build_command: Option<tokio::process::Child> = None;
+
     while let Some(event) = rx.recv().await {
         match event {
-            Ok(events) => {
-                for event in events {
-                    println!("event: {:?}", event);
+            Ok(_events) => {
+                // assuming that we will trigger on any event, so we are not checking the info
+
+                // if there is a running process, we must kill it first
+                if let Some(ref mut command) = build_command {
+                    command.kill().await?;
                 }
+
+                let process = tokio::process::Command::new("yarn")
+                    .args(["build"])
+                    .current_dir("./web")
+                    .spawn()?;
+
+                build_command = Some(process);
             }
             Err(errors) => {
                 for error in errors {
