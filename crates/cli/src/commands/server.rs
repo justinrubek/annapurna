@@ -14,6 +14,8 @@ pub(crate) struct ServerCommand {
 pub(crate) enum ServerCommands {
     /// start the http server
     Http,
+    /// passthrough to `yarn run dev`, while also starting the backend using [ServerCommand](super::server::ServerCommand)
+    Dev,
 }
 
 impl ServerCommand {
@@ -40,6 +42,17 @@ impl ServerCommand {
 
         match self.command {
             ServerCommands::Http => server.run().await?,
+            ServerCommands::Dev => {
+                // launch yarn
+                let _child = tokio::process::Command::new("yarn")
+                    .args(["dev"])
+                    .current_dir("./web")
+                    .kill_on_drop(true)
+                    .spawn()?;
+
+                // launch server
+                server.run().await?;
+            }
         }
 
         Ok(())
