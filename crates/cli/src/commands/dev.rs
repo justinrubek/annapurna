@@ -1,6 +1,7 @@
-use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
+use annapurna_watcher::new_async_debouncer;
+use notify::RecursiveMode;
 use std::path::Path;
-use tokio::sync::mpsc::Receiver;
+use tokio::time::Duration;
 
 #[derive(clap::Args, Debug)]
 pub(crate) struct DevCommand {
@@ -32,7 +33,7 @@ impl DevCommand {
                     "web/tailwind.theme.config.js",
                 ];
 
-                async_watch(paths).await?;
+                async_debounce_watch(paths).await?;
 
                 Ok(())
             }
@@ -40,31 +41,36 @@ impl DevCommand {
     }
 }
 
-fn async_watcher() -> notify::Result<(RecommendedWatcher, Receiver<notify::Result<Event>>)> {
-    let (tx, rx) = tokio::sync::mpsc::channel(100);
+/// Watches all given paths for changes.
+/// Changes are debounced, and gathered into a list of events
+pub async fn async_debounce_watch<P: AsRef<Path>>(paths: Vec<P>) -> notify::Result<()> {
+    // Create an AsyncDebouncer with a timeout of 1 second and a tick rate of 1 second.
+    // Process it until the debouncer is dropped.
+    let (tx, mut rx) = tokio::sync::mpsc::channel(100);
 
-    let watcher = RecommendedWatcher::new(
-        move |res| {
-            futures::executor::block_on(async {
-                tx.send(res).await.unwrap();
-            })
-        },
-        Config::default(),
-    )?;
+    let mut debouncer =
+        new_async_debouncer(Duration::from_secs(1), Some(Duration::from_secs(1)), tx).await?;
 
-    Ok((watcher, rx))
-}
+    paths.iter().for_each(|p| {
+        debouncer
+            .watcher()
+            .watch(p.as_ref(), RecursiveMode::Recursive)
+            .unwrap();
+    });
 
-async fn async_watch<P: AsRef<Path>>(paths: Vec<P>) -> notify::Result<()> {
-    let (mut watcher, mut rx) = async_watcher()?;
-
-    for path in paths {
-        watcher.watch(path.as_ref(), RecursiveMode::Recursive)?;
-    }
-
-    while let Some(res) = rx.recv().await {
-        let event = res?;
-        println!("event: {:?}", event);
+    while let Some(event) = rx.recv().await {
+        match event {
+            Ok(events) => {
+                for event in events {
+                    println!("event: {:?}", event);
+                }
+            }
+            Err(errors) => {
+                for error in errors {
+                    println!("error: {:?}", error);
+                }
+            }
+        }
     }
 
     Ok(())

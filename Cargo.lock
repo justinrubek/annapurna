@@ -19,6 +19,7 @@ version = "0.1.0"
 dependencies = [
  "annapurna-http",
  "annapurna-logic",
+ "annapurna-watcher",
  "clap",
  "config",
  "futures",
@@ -61,6 +62,20 @@ dependencies = [
  "ascent",
  "serde",
  "thiserror",
+ "tracing",
+]
+
+[[package]]
+name = "annapurna-watcher"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "futures",
+ "notify",
+ "serde",
+ "thiserror",
+ "tokio",
  "tracing",
 ]
 
