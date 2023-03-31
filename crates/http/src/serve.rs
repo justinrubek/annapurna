@@ -12,15 +12,18 @@ use html_editor::{
 };
 use std::collections::HashMap;
 
+/// The state of the injector middleware.
+/// It accepts a hashmap of variables to inject into the html response body.
 #[derive(Clone, Debug)]
 pub(crate) struct InjectorState {
     pub variables: HashMap<String, String>,
 }
 
-/// Middleware that injects variables into the html response body
-/// This is used to inject server-side variables into the client-side javascript
-/// The variables are injected into a div with the id "injected-config"
-/// The client-side javascript can then read the variables from this div using the `data-` prefixed attributes
+/// Middleware that injects variables into the html response body.
+/// This is used to inject server-side variables into the dom which can then be read by the client-side javascript.
+/// The function will look for a `text/html` content type header and if it is found, it will parse the body as html, inject the variables into the dom, and then return the new body.
+/// The variables are injected into a div with the id "injected-config".
+/// The client-side javascript can then read the variables from this div using the `data-` prefixed attributes.
 pub(crate) async fn inject_variables_into_html(
     State(state): State<InjectorState>,
     request: Request<BoxBody>,
