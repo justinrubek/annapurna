@@ -12,6 +12,7 @@ pub(crate) struct DevCommand {
 #[derive(clap::Subcommand, Debug)]
 pub(crate) enum DevCommands {
     /// watch for changes in the web directory and rebuild the frontend
+    /// it may be preferable to use the `sever dev` command instead as it will also run the backend
     Watch,
 }
 
@@ -46,8 +47,6 @@ impl DevCommand {
 pub async fn async_debounce_watch<P: AsRef<Path>>(
     paths: Vec<P>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    // Create an AsyncDebouncer with a timeout of 1 second and a tick rate of 1 second.
-    // Process it until the debouncer is dropped.
     let (tx, mut rx) = tokio::sync::mpsc::channel(100);
 
     let mut debouncer =
@@ -66,7 +65,7 @@ pub async fn async_debounce_watch<P: AsRef<Path>>(
     while let Some(event) = rx.recv().await {
         match event {
             Ok(_events) => {
-                // assuming that we will trigger on any event, so we are not checking the info
+                // the assumption is that we will trigger on any event, so we are not checking the info
 
                 // if there is a running process, we must kill it first
                 if let Some(ref mut command) = build_command {

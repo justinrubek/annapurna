@@ -52,6 +52,14 @@ export default /** @type {import('astro').AstroUserConfig} */ ({
     },
     optimizeDeps: {
         allowNodeBuiltins: true
-    }
+    },
+    server: {
+        proxy: {
+            '/api': {
+                target: 'http://127.0.0.1:3000',
+                changeOrigin: true,
+            },
+        },
+    },
   }
 });

@@ -8,15 +8,16 @@ pub(crate) struct ServerCommand {
     #[clap(subcommand)]
     pub command: ServerCommands,
 
-    #[arg(default_value = "0.0.0.0:5000", long, short)]
+    #[arg(default_value = "0.0.0.0:3000", long, short)]
     pub addr: std::net::SocketAddr,
 }
 
+/// A command for running the API server
 #[derive(clap::Subcommand, Debug)]
 pub(crate) enum ServerCommands {
     /// start the http server
     Http,
-    /// passthrough to `yarn run dev`, while also starting the backend using [ServerCommand](super::server::ServerCommand)
+    /// passthrough to `yarn run dev`, while also starting the http server
     Dev,
 }
 
@@ -48,20 +49,20 @@ impl ServerCommand {
                 // Determine the root of the repo so the command can be run from any directory
                 let (path, _trust) = gix_discover::upwards(Path::new("."))?;
                 let (_repo, worktree) = path.into_repository_and_work_tree_directories();
-                let worktree = worktree.expect("no worktree found");
-                let frontend_path = worktree.clone().join("web");
+                let worktree = worktree.expect("no worktree directory found");
+                let frontend_path = worktree.join("web");
 
                 // launch yarn
                 let _child = tokio::process::Command::new("yarn")
-                    .args(["dev"])
+                    .args(["dev", "--port", "4000"])
                     .current_dir(frontend_path)
-                    .kill_on_drop(true)
+                    // .kill_on_drop(true)
                     .spawn()?;
 
                 // launch server
-                server.run().await?;
+                server.run().await?
             }
-        }
+        };
 
         Ok(())
     }

@@ -1,10 +1,12 @@
 use axum::{
     body::{self},
+    extract::FromRef,
     middleware,
     response::Html,
     routing::{get, get_service},
     Router,
 };
+use hyper::{client::HttpConnector, Body};
 use lockpad_auth::PublicKey;
 use std::{collections::HashMap, net::SocketAddr, path::PathBuf};
 use tower::ServiceBuilder;
@@ -15,6 +17,8 @@ mod serve;
 
 use error::Result;
 use serve::{handle_error, inject_variables_into_html, InjectorState};
+
+type Client = hyper::client::Client<HttpConnector, Body>;
 
 pub struct Server {
     addr: SocketAddr,
@@ -28,10 +32,35 @@ pub struct ServerState {
     pub public_key: PublicKey,
 }
 
-impl AsRef<PublicKey> for ServerState {
-    fn as_ref(&self) -> &PublicKey {
-        &self.public_key
+impl FromRef<ServerState> for PublicKey {
+    fn from_ref(state: &ServerState) -> Self {
+        state.public_key.clone()
     }
+}
+
+// TODO: Proxy State.
+// Potentially try to impl axum's FromRef for ServerState and see if that works.
+#[derive(Clone)]
+pub struct ProxyState {
+    pub server_state: ServerState,
+    pub client: Client,
+}
+
+impl FromRef<ProxyState> for ServerState {
+    fn from_ref(state: &ProxyState) -> Self {
+        state.server_state.clone()
+    }
+}
+
+impl FromRef<ProxyState> for Client {
+    fn from_ref(state: &ProxyState) -> Self {
+        state.client.clone()
+    }
+}
+
+/// Get the default router for the API routes.
+fn api_routes<S: std::clone::Clone + Send + Sync + 'static>() -> Router<S> {
+    Router::new().route("/", get(root))
 }
 
 impl Server {
@@ -39,6 +68,8 @@ impl Server {
         Builder::default()
     }
 
+    /// Run the server.
+    /// This will start the api server and serve it from /api and serve static files when no route is matched.
     pub async fn run(self) -> Result<()> {
         let cors = tower_http::cors::CorsLayer::permissive();
 
@@ -64,10 +95,34 @@ impl Server {
         );
 
         let app = Router::new()
+            .nest("/api", api_routes())
             .with_state(state)
-            .route("/", get(root))
+            .fallback_service(serve_service)
+            .layer(cors);
+
+        tracing::debug!("listening on {}", &self.addr);
+        axum::Server::bind(&self.addr)
+            .serve(app.into_make_service())
+            .await
+            .unwrap();
+
+        Ok(())
+    }
+
+    /// Run the server in development mode.
+    /// This will not serve static files, but instead will be proxied by the frontend server.
+    /// This is useful for development, as it allows the frontend server to handle hot-reloading.
+    pub async fn run_dev(self) -> Result<()> {
+        let cors = tower_http::cors::CorsLayer::permissive();
+
+        let public_key = self.public_keys[0].clone();
+        let server_state = ServerState { public_key };
+
+        let app = Router::new()
+            // reverse-proxy to the frontend server
+            .nest("/api", api_routes())
             .layer(cors)
-            .fallback_service(serve_service);
+            .with_state(server_state);
 
         tracing::debug!("listening on {}", &self.addr);
         axum::Server::bind(&self.addr)

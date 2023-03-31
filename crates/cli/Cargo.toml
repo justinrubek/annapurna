@@ -14,7 +14,7 @@ annapurna-watcher = { path = "../watcher" }
 clap = { version = "4.1.13", features = ["derive"] }
 config = "0.13.3"
 gix-discover = "0.16.1"
-lockpad-auth = { path = "../../../lockpad/crates/auth" }
+lockpad-auth = "0.2.0"
 ron = "0.8.0"
 # clap = { version = "4.0.19", features = ["derive"] }
 # reqwest = { version = "0.11.12", features = ["rustls-tls"] }
