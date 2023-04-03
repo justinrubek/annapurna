@@ -41,6 +41,8 @@ impl ServerCommand {
             .addr(self.addr)
             .public_keys(key_set)
             .static_path(config.static_path)
+            .auth_url(auth_url)
+            .auth_app_id(config.auth_app_id)
             .build()?;
 
         match self.command {

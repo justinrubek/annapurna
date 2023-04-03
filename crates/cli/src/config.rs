@@ -6,6 +6,8 @@ use serde::{Deserialize, Serialize};
 pub struct Config {
     /// URL to auth service
     pub auth_url: String,
+    /// Application id for auth service
+    pub auth_app_id: String,
     /// Path of static files to serve
     #[serde(default = "default_static_path")]
     pub static_path: PathBuf,

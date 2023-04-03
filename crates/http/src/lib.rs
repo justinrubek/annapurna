@@ -1,10 +1,10 @@
 use axum::{
     body::{self},
-    extract::FromRef,
+    extract::{FromRef, State},
     middleware,
-    response::Html,
+    response::{Html, IntoResponse, Redirect},
     routing::{get, get_service},
-    Router,
+    Router, TypedHeader,
 };
 use hyper::{client::HttpConnector, Body};
 use lockpad_auth::PublicKey;
@@ -22,6 +22,8 @@ type Client = hyper::client::Client<HttpConnector, Body>;
 
 pub struct Server {
     addr: SocketAddr,
+    auth_url: String,
+    auth_app_id: String,
 
     public_keys: Vec<PublicKey>,
     static_path: PathBuf,
@@ -30,6 +32,8 @@ pub struct Server {
 #[derive(Clone)]
 pub struct ServerState {
     pub public_key: PublicKey,
+    pub auth_url: String,
+    pub auth_app_id: String,
 }
 
 impl FromRef<ServerState> for PublicKey {
@@ -59,8 +63,13 @@ impl FromRef<ProxyState> for Client {
 }
 
 /// Get the default router for the API routes.
-fn api_routes<S: std::clone::Clone + Send + Sync + 'static>() -> Router<S> {
-    Router::new().route("/", get(root))
+fn api_routes<S: std::clone::Clone + Send + Sync + 'static>() -> Router<S>
+where
+    ServerState: axum::extract::FromRef<S>,
+{
+    Router::new()
+        .route("/", get(root))
+        .route("/login", get(login_redirect))
 }
 
 impl Server {
@@ -74,7 +83,11 @@ impl Server {
         let cors = tower_http::cors::CorsLayer::permissive();
 
         let public_key = self.public_keys[0].clone();
-        let state = ServerState { public_key };
+        let state = ServerState {
+            public_key,
+            auth_url: self.auth_url.clone(),
+            auth_app_id: self.auth_app_id.clone(),
+        };
 
         // TODO: populate frontend_state with necessary variables
         let mut frontend_state = InjectorState {
@@ -82,7 +95,7 @@ impl Server {
         };
         frontend_state
             .variables
-            .insert("auth_url".to_string(), "http://localhost:3000".to_string());
+            .insert("auth_url".to_string(), self.auth_url);
 
         // serve all files from the static directory
         // if the file contains html, it will be edited to include runtime environment variables
@@ -115,8 +128,14 @@ impl Server {
     pub async fn run_dev(self) -> Result<()> {
         let cors = tower_http::cors::CorsLayer::permissive();
 
+        let auth_url = self.auth_url.clone();
+        let auth_app_id = self.auth_app_id.clone();
         let public_key = self.public_keys[0].clone();
-        let server_state = ServerState { public_key };
+        let server_state = ServerState {
+            public_key,
+            auth_url,
+            auth_app_id,
+        };
 
         let app = Router::new()
             // reverse-proxy to the frontend server
@@ -136,6 +155,8 @@ impl Server {
 
 pub struct Builder {
     addr: Option<SocketAddr>,
+    auth_url: Option<String>,
+    auth_app_id: Option<String>,
     public_keys: Option<Vec<PublicKey>>,
     static_path: Option<PathBuf>,
 }
@@ -144,6 +165,8 @@ impl Builder {
     pub fn new() -> Self {
         Self {
             addr: None,
+            auth_url: None,
+            auth_app_id: None,
             public_keys: None,
             static_path: None,
         }
@@ -151,6 +174,16 @@ impl Builder {
 
     pub fn addr(mut self, addr: SocketAddr) -> Self {
         self.addr = Some(addr);
+        self
+    }
+
+    pub fn auth_url(mut self, auth_url: String) -> Self {
+        self.auth_url = Some(auth_url);
+        self
+    }
+
+    pub fn auth_app_id(mut self, auth_app_id: String) -> Self {
+        self.auth_app_id = Some(auth_app_id);
         self
     }
 
@@ -166,11 +199,15 @@ impl Builder {
 
     pub fn build(self) -> Result<Server> {
         let addr = self.addr.ok_or(error::Error::ServerBuilder)?;
+        let auth_url = self.auth_url.ok_or(error::Error::ServerBuilder)?;
+        let auth_app_id = self.auth_app_id.ok_or(error::Error::ServerBuilder)?;
         let public_keys = self.public_keys.ok_or(error::Error::ServerBuilder)?;
         let static_path = self.static_path.ok_or(error::Error::ServerBuilder)?;
 
         Ok(Server {
             addr,
+            auth_url,
+            auth_app_id,
             public_keys,
             static_path,
         })
@@ -181,6 +218,8 @@ impl Default for Builder {
     fn default() -> Self {
         Self {
             addr: Some(SocketAddr::from(([0, 0, 0, 0], 3000))),
+            auth_url: None,
+            auth_app_id: None,
             public_keys: None,
             static_path: None,
         }
@@ -189,4 +228,25 @@ impl Default for Builder {
 
 async fn root() -> Html<String> {
     Html("<h1>Hello, world!</h1>".to_string())
+}
+
+async fn login_redirect(
+    TypedHeader(host): TypedHeader<axum::headers::Host>,
+    State(ServerState {
+        auth_url,
+        auth_app_id,
+        ..
+    }): State<ServerState>,
+) -> impl IntoResponse {
+    let mut query_params = HashMap::new();
+    query_params.insert("redirect_uri", "http://localhost:3000/login-callback");
+    query_params.insert("client_id", &auth_app_id);
+    let query_string = serde_urlencoded::to_string(&query_params).unwrap();
+
+    let url = format!("{auth_url}/login?{query_string}");
+    (
+        Redirect::temporary(&url),
+        TypedHeader(axum::extract::Host::new(host.host(), host.port())),
+    )
+        .into_response()
 }
