@@ -2,6 +2,7 @@
 import { SITE } from '$/config'
 import BaseHead from '$/components/BaseHead.astro';
 import MainLayout from '$/components/MainLayout.astro';
+import ServiceWorker from '$/components/ServiceWorker.astro';
 
 const { content, showPageHeader = true } = Astro.props
 ---
@@ -19,6 +20,8 @@ const { content, showPageHeader = true } = Astro.props
         }
         <slot />
     </MainLayout>
+    <ServiceWorker />
+
 </html>
 <style>
     .page__header {
