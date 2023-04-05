@@ -1,0 +1,174 @@
+---
+---
+<script lang="js">
+    async function registerServiceWorker(tryOnce = false) {
+        if (!("serviceWorker" in navigator)) {
+            throw new Error("Service workers are not supported");
+        }
+
+        const url = new URL(`/serviceWorker.js`, location).toString();
+
+        console.debug("Registering service worker");
+        const registration = await navigator.serviceWorker.register(
+            url,
+            { scope: "/" }
+        );
+
+        const registeredWorker = 
+            registration.active ||
+            registration.waiting ||
+            registration.installing;
+        console.debug("service worker registered", registeredWorker);
+
+        if (registeredWorker?.scriptURL != url) {
+            console.debug(
+                "[ServiceWorker] old url:",
+                registeredWorker?.scriptURL || "none",
+                "updating to:",
+                url
+            );
+
+            await registration.update();
+            console.debug("Service worker updated");
+        }
+
+        console.debug("awaiting service worker ready");
+        let serviceReg = await navigator.serviceWorker.ready;
+        console.debug("service worker ready", serviceReg);
+
+        if (!navigator.serviceWorker.controller) {
+            console.debug("service worker isn't controlling");
+
+            try {
+                const reg = await navigator.serviceWorker.getRegistration("/");
+                console.debug("unregistering service worker");
+                await reg.unregister();
+                console.debug("service worker unregistered, trying to re-register");
+                return registerServiceWorker();
+            } catch (err) {
+                console.error("Service worker failed to re-register after hard reload, refreshing page", err);
+                return location.reload();
+            }
+        }
+
+        let serviceWorker = 
+            serviceReg.active ||
+            serviceReg.waiting ||
+            serviceReg.installing;
+
+        if (!serviceWorker) {
+            console.debug("no worker on registration, trying to re-get registration");
+            serviceReg = await navigator.serviceWorker.getRegistration("/");
+            serviceWorker = 
+                serviceReg.active ||
+                serviceReg.waiting ||
+                serviceReg.installing;
+        }
+
+        if (!serviceWorker) {
+            console.debug("no worker on registration, waiting a bit");
+            await sleep(50);
+        }
+
+        serviceWorker = 
+            serviceReg.active ||
+            serviceReg.waiting ||
+            serviceReg.installing;
+        if (!serviceWorker) {
+            console.error("no worker on registration, giving up");
+            throw new Error("waited on .ready but no worker");
+        }
+
+        if (serviceWorker.state == "redundant") {
+            return registerServiceWorker();
+        }
+
+        if (serviceWorker.state != "activated") {
+            console.debug("worker is controlling but not activated, waiting on event");
+            try {
+                // timeout in case the statechange doesn't fire, or comes with the wrong state
+                await timeout(
+                    100,
+                    new Promise((resolve) => {
+                        serviceWorker.addEventListener(
+                        "statechange",
+                        (e) => {
+                            if (e.target.state == "activated") {
+                                console.debug("worker activated");
+                                resolve();
+                            }
+                        });
+                    })
+                );
+            } catch (err) {
+                if (err instanceof TimeoutError) {
+                    if (serviceWorker.state == "activated") {
+                        if (tryOnce) {
+                            console.debug("worker still not active. state=", serviceWorker.state);
+                            throw new Error("failed to activate service worker");
+                        } else {
+                            console.debug("worker is still not active, retrying once");
+                            return registerServiceWorker(true);
+                        }
+                    }
+                } else {
+                    // should be unreachable
+                    throw err;
+                }
+            }
+        }
+
+        console.debug("service worker ready!!!");
+        return serviceWorker;
+    }
+
+    class TimeoutError extends Error {}
+
+    function timeout(ms, promise) {
+        return new Promise((resolve, reject) => {
+            const timer = setTimeout(() => {
+                reject(new TimeoutError());
+            }, ms);
+
+            promise.then(
+                (res) => {
+                    clearTimeout(timer);
+                    resolve(res);
+                },
+                (err) => {
+                    clearTimeout(timer);
+                    reject(err);
+                }
+            );
+        });
+    }
+
+    registerServiceWorker().then(serviceWorker => {
+        const currentPath = location.pathname;
+
+        console.info("service worker ready hook", serviceWorker);
+        console.info("current path", currentPath);
+
+        // If we are on /login-callback, we need to send a message to the service worker with the token
+        if (currentPath == "/login-callback") {
+            // retrieve the token from the URL params
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get("token");
+
+            // send the token to the service worker
+            serviceWorker.postMessage({
+                type: "login-callback",
+                token: token,
+                redirectTo: "/",
+            });
+        } else if (currentPath == "/logout") {
+            serviceWorker.postMessage({
+                type: "logout",
+                redirectTo: "/",
+            });
+        }
+    }).catch(err => {
+        console.error("Failed to register service worker", err);
+    });
+</script>
+

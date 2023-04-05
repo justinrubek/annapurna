@@ -3,10 +3,10 @@ use axum::{
     extract::{FromRef, State},
     middleware,
     response::{Html, IntoResponse, Redirect},
-    routing::{get, get_service},
-    Router, TypedHeader,
+    routing::{get, get_service, post},
+    Form, Router, TypedHeader,
 };
-use hyper::{client::HttpConnector, Body};
+use hyper::{client::HttpConnector, Body, StatusCode};
 use lockpad_auth::PublicKey;
 use std::{collections::HashMap, net::SocketAddr, path::PathBuf};
 use tower::ServiceBuilder;
@@ -70,6 +70,7 @@ where
     Router::new()
         .route("/", get(root))
         .route("/login", get(login_redirect))
+        .route("/submit", post(dummy_form))
 }
 
 impl Server {
@@ -244,9 +245,14 @@ async fn login_redirect(
     let query_string = serde_urlencoded::to_string(&query_params).unwrap();
 
     let url = format!("{auth_url}/login?{query_string}");
-    (
-        Redirect::temporary(&url),
-        TypedHeader(axum::extract::Host::new(host.host(), host.port())),
-    )
-        .into_response()
+    Redirect::temporary(&url)
+}
+
+#[derive(Debug, serde::Deserialize)]
+struct DummyForm {
+    name: String,
+}
+
+async fn dummy_form(Form(payload): Form<DummyForm>) -> impl IntoResponse {
+    Redirect::to(&format!("/?name={}", payload.name))
 }

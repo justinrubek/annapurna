@@ -7,4 +7,15 @@ const description = 'annapurna'
 ---
 <DefaultPageLayout content={{ title, description }} showPageHeader={false}>
 Hello, World!
+<br />
+
+<a href="/api/login">Login</a>
+<br />
+<a href="/logout">Logout</a>
+
+<form action="/api/submit" method="post">
+  <input type="text" name="name" />
+  <input type="submit" value="Submit" />
+</form>
+
 </DefaultPageLayout>
