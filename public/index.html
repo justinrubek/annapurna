@@ -1,0 +1,58 @@
+<html>
+
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+</head>
+
+<body>
+    <div>
+        <h1>annapurna</h1>
+
+        <p>
+            Annapurna is a cooking and lifestyle utility.
+            Using it will allow you to improve your diet by making nutritional choices easier.
+            You can use it to plan and track your diet, and it will save you time and money by reducing the amount of
+            food you waste.
+        </p>
+
+        <a href="/api/login">Login</a>
+        <br />
+        <a href="/logout">Logout</a>
+
+        <form action="/api/submit" method="post">
+            <input type="text" name="name" />
+            <input type="submit" value="Submit" />
+        </form>
+    </div>
+
+    <script type="module">
+        import init, {basic_register_service_worker, register_service_worker} from '/loader/service_worker_loader.js';
+
+        async function run() {
+            await init();
+
+            const result = await register_service_worker(
+                "/sw.js",
+                false,
+            ).then(serviceWorker => {
+                console.log("index: Service worker registered");
+                serviceWorker.postMessage({type: "post-register"});
+
+                return serviceWorker;
+            });
+
+            console.log(result);
+        }
+
+        run();
+    </script>
+    <noscript>
+        If you are seeing this message, JavaScript is disabled in your browser.
+        This page requires JavaScript for the primary functionality to work.
+
+        You may find the source code to the page on <a href="https://github.com/justinrubek/annapurna">GitHub</a> if you
+        wish to check it out yourself.
+    </noscript>
+</body>
+
+</html>

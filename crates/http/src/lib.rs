@@ -6,7 +6,7 @@ use axum::{
     routing::{get, get_service, post},
     Form, Router, TypedHeader,
 };
-use hyper::{client::HttpConnector, Body, StatusCode};
+use hyper::{client::HttpConnector, Body};
 use lockpad_auth::PublicKey;
 use std::{collections::HashMap, net::SocketAddr, path::PathBuf};
 use tower::ServiceBuilder;
@@ -66,6 +66,7 @@ impl FromRef<ProxyState> for Client {
 fn api_routes<S: std::clone::Clone + Send + Sync + 'static>() -> Router<S>
 where
     ServerState: axum::extract::FromRef<S>,
+    PublicKey: axum::extract::FromRef<S>,
 {
     Router::new()
         .route("/", get(root))
@@ -232,7 +233,7 @@ async fn root() -> Html<String> {
 }
 
 async fn login_redirect(
-    TypedHeader(host): TypedHeader<axum::headers::Host>,
+    TypedHeader(_host): TypedHeader<axum::headers::Host>,
     State(ServerState {
         auth_url,
         auth_app_id,
@@ -253,6 +254,10 @@ struct DummyForm {
     name: String,
 }
 
-async fn dummy_form(Form(payload): Form<DummyForm>) -> impl IntoResponse {
+async fn dummy_form(
+    claims: lockpad_auth::Claims,
+    Form(payload): Form<DummyForm>,
+) -> impl IntoResponse {
+    tracing::info!("claims: {:?}", claims);
     Redirect::to(&format!("/?name={}", payload.name))
 }
