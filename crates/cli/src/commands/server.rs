@@ -33,7 +33,8 @@ impl ServerCommand {
             .get(format!("{auth_url}/.well-known/jwks.json"))
             .send()
             .await
-            .unwrap();
+            .expect("failed to fetch jwks from auth server");
+
         let jwks_str = res.text().await.unwrap();
         let key_set = PublicKey::parse_from_jwks(&jwks_str)?;
 
@@ -52,7 +53,7 @@ impl ServerCommand {
                 let (path, _trust) = gix_discover::upwards(Path::new("."))?;
                 let (_repo, worktree) = path.into_repository_and_work_tree_directories();
                 let worktree = worktree.expect("no worktree directory found");
-                let frontend_path = worktree.join("web");
+                let frontend_path = worktree.join("public");
 
                 // launch yarn
                 let _child = tokio::process::Command::new("yarn")
