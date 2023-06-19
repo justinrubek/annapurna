@@ -81,7 +81,7 @@ pub async fn async_debounce_watch<P: AsRef<Path>>(
             }
             Err(errors) => {
                 for error in errors {
-                    println!("error: {:?}", error);
+                    println!("error: {error:?}");
                 }
             }
         }

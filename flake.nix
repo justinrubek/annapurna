@@ -37,13 +37,18 @@
     flake-parts.lib.mkFlake {inherit inputs;} {
       systems = ["x86_64-linux" "aarch64-linux"];
       imports = [
-        inputs.dream2nix.flakeModuleBeta
-        inputs.pre-commit-hooks.flakeModule
-
         ./flake-parts/astro.nix
-        ./flake-parts/cargo.nix
-        ./flake-parts/pre-commit.nix
+        inputs.dream2nix.flakeModuleBeta
+
         ./flake-parts/rust-toolchain.nix
+        ./flake-parts/cargo.nix
+
+        ./flake-parts/ci.nix
+        ./flake-parts/shells.nix
+
+        ./flake-parts/formatting.nix
+        ./flake-parts/pre-commit.nix
+        inputs.pre-commit-hooks.flakeModule
       ];
     };
 }

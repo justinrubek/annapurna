@@ -49,7 +49,7 @@ pub(crate) async fn inject_variables_into_html(
             let values = state
                 .variables
                 .iter()
-                .map(|(key, value)| (format!("data-{}", key), value))
+                .map(|(key, value)| (format!("data-{key}"), value))
                 .collect::<Vec<_>>();
             // Get the values as references
             let mut values = values

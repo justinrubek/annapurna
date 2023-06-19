@@ -3,20 +3,18 @@
   self,
   ...
 }: {
-  perSystem = {
-    pkgs,
-    self',
-    ...
-  }: {
+  perSystem = {self', ...}: let
+  in {
     pre-commit = {
-      check.enable = false;
+      check.enable = true;
 
       settings = {
         src = ../.;
         hooks = {
-          alejandra.enable = true;
-          rustfmt.enable = true;
+          treefmt.enable = true;
         };
+
+        settings.treefmt.package = self'.packages.treefmt;
       };
     };
   };

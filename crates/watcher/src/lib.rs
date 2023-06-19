@@ -185,16 +185,14 @@ pub async fn new_async_debouncer_opt<F: AsyncDebounceEventHandler + Send + 'stat
         Some(v) => {
             if v > timeout {
                 return Err(Error::new(ErrorKind::Generic(format!(
-                    "Invalid tick_rate, tick rate {:?} > {:?} timeout!",
-                    v, timeout
+                    "Invalid tick_rate, tick rate {v:?} > {timeout:?} timeout!"
                 ))));
             }
             v
         }
         None => timeout.checked_div(tick_div).ok_or_else(|| {
             Error::new(ErrorKind::Generic(format!(
-                "Failed to calculate tick as {:?}/{}!",
-                timeout, tick_div
+                "Failed to calculate tick as {timeout:?}/{tick_div}!"
             )))
         })?,
     };
