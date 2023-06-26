@@ -1,0 +1,13 @@
+[package]
+name = "annapurna-wasm"
+version = { workspace = true }
+edition = { workspace = true }
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+annapurna-logic = { path = "../logic" }
+tracing = { workspace = true }
+wasm-bindgen = { workspace = true }
+wasm-logger = "0.2.0"

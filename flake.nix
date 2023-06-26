@@ -40,6 +40,8 @@
         ./flake-parts/astro.nix
         inputs.dream2nix.flakeModuleBeta
 
+        ./flake-parts/web.nix
+
         ./flake-parts/rust-toolchain.nix
         ./flake-parts/cargo.nix
 

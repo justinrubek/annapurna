@@ -23,6 +23,8 @@
             <input type="text" name="name" />
             <input type="submit" value="Submit" />
         </form>
+
+        <div id="main"></div>
     </div>
 
     <script type="module">
@@ -42,6 +44,17 @@
             });
 
             console.log(result);
+        }
+
+        run();
+    </script>
+
+    <script type="module">
+        import init, {launch_app} from '/wasm/annapurna_ui.js';
+
+        async function run() {
+            await init();
+            launch_app();
         }
 
         run();

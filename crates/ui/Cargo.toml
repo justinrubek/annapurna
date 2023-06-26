@@ -1,0 +1,40 @@
+cargo-features = ["per-package-target"]
+
+[package]
+name = "annapurna-ui"
+version = { workspace = true }
+edition = { workspace = true }
+forced-target = "wasm32-unknown-unknown"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+annapurna-logic = { path = "../logic" }
+dioxus = "0.3.2"
+dioxus-web = "0.3.2"
+getrandom = { version = "0.2.8", features = ["js"] }
+js-sys = { workspace = true }
+tracing = { workspace = true }
+wasm-bindgen = { workspace = true }
+wasm-logger = "0.2.0"
+
+[dependencies.web-sys]
+version = "0.3.4"
+features = [
+    "console",
+    "Document",
+    "Element",
+    "HtmlElement",
+    "Location",
+    "Navigator",
+    "Node",
+    "Window",
+    "RegistrationOptions",
+    "ServiceWorkerGlobalScope",
+    "ServiceWorkerRegistration",
+    "ServiceWorkerState",
+    "ServiceWorker",
+    "ServiceWorkerContainer",
+    "Url",
+]
