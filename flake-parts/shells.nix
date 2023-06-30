@@ -16,6 +16,7 @@
       rust-toolchain
       pkgs.cargo-audit
       pkgs.cargo-udeps
+      pkgs.cargo-nextest
       pkgs.bacon
       pkgs.wasm-bindgen-cli
       # version control
