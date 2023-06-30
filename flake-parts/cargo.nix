@@ -39,7 +39,10 @@
       SQLX_OFFLINE = true;
     };
 
-    cargoArtifacts = craneLib.buildDepsOnly (commonArgs // {});
+    cargoArtifacts = craneLib.buildDepsOnly (commonArgs
+      // {
+        cargoExtraArgs = "--exclude annapurna-wasm --exclude annapurna-ui --workspace";
+      });
     packages = let
       buildWasmPackage = {
         name,
@@ -128,6 +131,7 @@
           inherit cargoArtifacts;
           partitions = 1;
           partitionType = "count";
+          cargoExtraArgs = "--exclude annapurna-wasm --exclude annapurna-ui --workspace";
         });
     };
   in rec {
