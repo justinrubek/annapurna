@@ -1,4 +1,4 @@
-use annapurna_watcher::new_async_debouncer;
+use async_watcher::AsyncDebouncer;
 use notify::RecursiveMode;
 use std::path::Path;
 use tokio::time::Duration;
@@ -50,7 +50,7 @@ pub async fn async_debounce_watch<P: AsRef<Path>>(
     let (tx, mut rx) = tokio::sync::mpsc::channel(100);
 
     let mut debouncer =
-        new_async_debouncer(Duration::from_secs(1), Some(Duration::from_secs(1)), tx).await?;
+        AsyncDebouncer::new(Duration::from_secs(1), Some(Duration::from_secs(1)), tx).await?;
 
     paths.iter().for_each(|p| {
         debouncer

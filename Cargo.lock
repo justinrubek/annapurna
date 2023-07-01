@@ -52,7 +52,7 @@ version = "0.1.0"
 dependencies = [
  "annapurna-http",
  "annapurna-logic",
- "annapurna-watcher",
+ "async-watcher",
  "clap",
  "config",
  "futures",
@@ -124,20 +124,6 @@ dependencies = [
  "tracing",
  "wasm-bindgen",
  "wasm-logger",
-]
-
-[[package]]
-name = "annapurna-watcher"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "futures",
- "notify",
- "serde",
- "thiserror",
- "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -221,6 +207,20 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.18",
+]
+
+[[package]]
+name = "async-watcher"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1f592305b7e0a9375714169a15870cd1c75763ca58a40e3d9a9d55d7d969f128"
+dependencies = [
+ "async-trait",
+ "notify",
+ "serde",
+ "thiserror",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
