@@ -22,17 +22,7 @@ impl DevCommand {
             DevCommands::Watch => {
                 println!("Watching for changes...");
 
-                let paths = vec![
-                    "web/src",
-                    "web/package.json",
-                    "web/yarn.lock",
-                    "web/public",
-                    "web/tsconfig.json",
-                    "web/astro.config.mjs",
-                    "web/postcss.config.cjs",
-                    "web/tailwind.config.cjs",
-                    "web/tailwind.theme.config.js",
-                ];
+                let paths = vec!["crates/ui", "public"];
 
                 async_debounce_watch(paths).await?;
 
