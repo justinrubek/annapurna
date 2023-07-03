@@ -11,6 +11,7 @@ use lockpad_auth::PublicKey;
 use std::{collections::HashMap, net::SocketAddr, path::PathBuf};
 use tower::ServiceBuilder;
 use tower_http::{services::ServeDir, ServiceBuilderExt};
+use tracing::info;
 
 pub mod error;
 mod serve;
@@ -20,6 +21,7 @@ use serve::{handle_error, inject_variables_into_html, InjectorState};
 
 type Client = hyper::client::Client<HttpConnector, Body>;
 
+#[derive(Clone)]
 pub struct Server {
     addr: SocketAddr,
     auth_url: String,
@@ -79,9 +81,15 @@ impl Server {
         Builder::default()
     }
 
+    pub fn change_dir(&mut self, dir: PathBuf) {
+        self.static_path = dir;
+    }
+
     /// Run the server.
     /// This will start the api server and serve it from /api and serve static files when no route is matched.
     pub async fn run(self) -> Result<()> {
+        info!("Starting server on {}", self.addr);
+
         let cors = tower_http::cors::CorsLayer::permissive();
 
         let public_key = self.public_keys[0].clone();
