@@ -1,15 +1,15 @@
+use annapurna_data::types::{Ingredient, Recipe};
+
 mod aggregators;
 pub mod error;
 pub mod program;
 mod recipe;
-pub mod types;
 
 #[cfg(test)]
 mod tests;
 
 use program::AscentProgram;
 use recipe::RecipeManager;
-use types::{Ingredient, Recipe};
 
 pub fn recipe(recipes: Vec<Recipe>, has_ingredients: Vec<Ingredient>) {
     // convert to String

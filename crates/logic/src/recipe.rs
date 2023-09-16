@@ -3,13 +3,12 @@
 #![allow(clippy::just_underscores_and_digits)]
 #![allow(clippy::unused_unit)]
 
-use std::collections::HashMap;
-
+use annapurna_data::types;
 use ascent::ascent;
+use std::collections::HashMap;
 
 use crate::aggregators::vec_missing;
 use crate::program::AscentProgram;
-use crate::types;
 
 type Ingredient = String;
 type Recipe = String;

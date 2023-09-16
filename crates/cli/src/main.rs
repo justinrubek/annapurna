@@ -1,7 +1,5 @@
-use annapurna_logic::{
-    recipe,
-    types::{Ingredient, Recipe},
-};
+use annapurna_data::types::{Ingredient, Recipe};
+use annapurna_logic::recipe;
 use clap::Parser;
 use std::collections::HashMap;
 
