@@ -37,6 +37,7 @@ struct RecipeProps {
     ingredients: Vec<String>,
 }
 
+#[allow(non_snake_case)]
 fn Recipe(cx: Scope<RecipeProps>) -> Element {
     cx.render(rsx! {
         div {

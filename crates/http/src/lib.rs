@@ -1,3 +1,4 @@
+use annapurna_data::{types::Recipe, Facts};
 use axum::{
     body::{self},
     extract::{FromRef, State},
@@ -29,6 +30,8 @@ pub struct Server {
 
     public_keys: Vec<PublicKey>,
     static_path: PathBuf,
+
+    facts: Facts,
 }
 
 #[derive(Clone)]
@@ -36,6 +39,8 @@ pub struct ServerState {
     pub public_key: PublicKey,
     pub auth_url: String,
     pub auth_app_id: String,
+
+    pub facts: Facts,
 }
 
 impl FromRef<ServerState> for PublicKey {
@@ -74,6 +79,7 @@ where
         .route("/", get(root))
         .route("/login", get(login_redirect))
         .route("/submit", post(dummy_form))
+        .route("/recipes", get(get_recipes))
 }
 
 impl Server {
@@ -97,6 +103,7 @@ impl Server {
             public_key,
             auth_url: self.auth_url.clone(),
             auth_app_id: self.auth_app_id.clone(),
+            facts: self.facts.clone(),
         };
 
         // TODO: populate frontend_state with necessary variables
@@ -141,10 +148,12 @@ impl Server {
         let auth_url = self.auth_url.clone();
         let auth_app_id = self.auth_app_id.clone();
         let public_key = self.public_keys[0].clone();
+        let facts = self.facts.clone();
         let server_state = ServerState {
             public_key,
             auth_url,
             auth_app_id,
+            facts,
         };
 
         let app = Router::new()
@@ -169,6 +178,7 @@ pub struct Builder {
     auth_app_id: Option<String>,
     public_keys: Option<Vec<PublicKey>>,
     static_path: Option<PathBuf>,
+    facts: Option<Facts>,
 }
 
 impl Builder {
@@ -179,6 +189,7 @@ impl Builder {
             auth_app_id: None,
             public_keys: None,
             static_path: None,
+            facts: None,
         }
     }
 
@@ -207,12 +218,18 @@ impl Builder {
         self
     }
 
+    pub fn facts(mut self, facts: Facts) -> Self {
+        self.facts = Some(facts);
+        self
+    }
+
     pub fn build(self) -> Result<Server> {
         let addr = self.addr.ok_or(error::Error::ServerBuilder)?;
         let auth_url = self.auth_url.ok_or(error::Error::ServerBuilder)?;
         let auth_app_id = self.auth_app_id.ok_or(error::Error::ServerBuilder)?;
         let public_keys = self.public_keys.ok_or(error::Error::ServerBuilder)?;
         let static_path = self.static_path.ok_or(error::Error::ServerBuilder)?;
+        let facts = self.facts.ok_or(error::Error::ServerBuilder)?;
 
         Ok(Server {
             addr,
@@ -220,6 +237,7 @@ impl Builder {
             auth_app_id,
             public_keys,
             static_path,
+            facts,
         })
     }
 }
@@ -232,6 +250,7 @@ impl Default for Builder {
             auth_app_id: None,
             public_keys: None,
             static_path: None,
+            facts: None,
         }
     }
 }
@@ -268,4 +287,10 @@ async fn dummy_form(
 ) -> impl IntoResponse {
     tracing::info!("claims: {:?}", claims);
     Redirect::to(&format!("/?name={}", payload.name))
+}
+
+async fn get_recipes(
+    State(ServerState { facts, .. }): State<ServerState>,
+) -> axum::Json<Vec<Recipe>> {
+    axum::Json(facts.recipes)
 }
