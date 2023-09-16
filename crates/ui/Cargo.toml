@@ -10,11 +10,14 @@ forced-target = "wasm32-unknown-unknown"
 crate-type = ["cdylib"]
 
 [dependencies]
+annapurna-data = { path = "../data" }
 annapurna-logic = { path = "../logic" }
 dioxus = "0.4.0"
+dioxus-router = "0.4.1"
 dioxus-web = "0.4.0"
 getrandom = { version = "0.2.8", features = ["js"] }
 js-sys = { workspace = true }
+serde = { workspace = true }
 tracing = { workspace = true }
 wasm-bindgen = { workspace = true }
 wasm-logger = "0.2.0"
