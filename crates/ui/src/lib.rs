@@ -24,5 +24,31 @@ fn app(cx: Scope) -> Element {
             },
             "download file"
         }
+        Recipe {
+            name: "pizza dough".to_string(),
+            ingredients: vec!["flour".to_string(), "water".to_string(), "salt".to_string(), "yeast".to_string()],
+        }
+    })
+}
+
+#[derive(PartialEq, Props)]
+struct RecipeProps {
+    name: String,
+    ingredients: Vec<String>,
+}
+
+fn Recipe(cx: Scope<RecipeProps>) -> Element {
+    cx.render(rsx! {
+        div {
+            h3 { "{cx.props.name}" }
+            div {
+                h4 { "Ingredients" }
+                ul {
+                    cx.props.ingredients.iter().map(|ingredient| rsx! {
+                        li { "{ingredient}" }
+                    })
+                }
+            }
+        }
     })
 }
