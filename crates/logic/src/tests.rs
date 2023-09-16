@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use crate::program::AscentProgram;
 use crate::recipe::RecipeManager;
-use crate::types::{Ingredient, Recipe};
+use annapurna_data::types::{Ingredient, Recipe};
 
 fn build_ingredients(data: Vec<&str>) -> Vec<Ingredient> {
     data.into_iter()

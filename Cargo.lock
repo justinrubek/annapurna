@@ -50,6 +50,7 @@ dependencies = [
 name = "annapurna"
 version = "0.1.0"
 dependencies = [
+ "annapurna-data",
  "annapurna-http",
  "annapurna-logic",
  "async-watcher",
@@ -67,6 +68,13 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
+]
+
+[[package]]
+name = "annapurna-data"
+version = "0.1.0"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
@@ -94,6 +102,7 @@ dependencies = [
 name = "annapurna-logic"
 version = "0.1.0"
 dependencies = [
+ "annapurna-data",
  "anyhow",
  "ascent",
  "serde",

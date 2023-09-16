@@ -8,6 +8,7 @@ name = "annapurna-cli"
 path = "src/main.rs"
 
 [dependencies]
+annapurna-data = { path = "../data" }
 annapurna-logic = { path = "../logic" }
 annapurna-http = { path = "../http" }
 async-watcher = "0.1.1"
