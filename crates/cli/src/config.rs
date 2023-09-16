@@ -11,6 +11,8 @@ pub struct Config {
     /// Path of static files to serve
     #[serde(default = "default_static_path")]
     pub static_path: PathBuf,
+    /// Directory to load facts from
+    pub facts_path: PathBuf,
 }
 
 impl Config {

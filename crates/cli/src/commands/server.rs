@@ -1,4 +1,5 @@
 use annapurna::config::Config;
+use annapurna_data::Facts;
 use async_watcher::{
     notify::{RecommendedWatcher, RecursiveMode},
     AsyncDebouncer, DebouncedEvent,
@@ -42,12 +43,15 @@ impl ServerCommand {
         let jwks_str = res.text().await.unwrap();
         let key_set = PublicKey::parse_from_jwks(&jwks_str)?;
 
+        let facts = Facts::read_from_directory(config.facts_path)?;
+
         let server = annapurna_http::Server::builder()
             .addr(self.addr)
             .public_keys(key_set.clone())
             .static_path(config.static_path.clone())
             .auth_url(auth_url.clone())
             .auth_app_id(config.auth_app_id.clone())
+            .facts(facts)
             .build()?;
 
         match self.command {

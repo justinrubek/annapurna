@@ -4,6 +4,7 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+annapurna-data = { path = "../data" }
 axum = { workspace = true }
 futures-util = "0.3.28"
 html_editor = "0.5.2"
