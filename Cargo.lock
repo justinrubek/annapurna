@@ -74,6 +74,7 @@ dependencies = [
 name = "annapurna-data"
 version = "0.1.0"
 dependencies = [
+ "ron 0.8.0",
  "serde",
 ]
 
