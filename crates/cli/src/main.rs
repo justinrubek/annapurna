@@ -1,7 +1,6 @@
-use annapurna_data::types::{Ingredient, Recipe};
+use annapurna_data::Facts;
 use annapurna_logic::recipe;
 use clap::Parser;
-use std::collections::HashMap;
 
 pub mod commands;
 use commands::{BasicCommands, Commands};
@@ -14,20 +13,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     match args.command {
         Commands::Command(command) => match command.command {
             BasicCommands::Run => {
-                let recipe_contents = std::fs::read_to_string("facts/recipes.ron").unwrap();
-                let recipes_data: HashMap<String, Vec<String>> =
-                    ron::from_str(&recipe_contents).unwrap();
-                let recipes = Recipe::from_hashmap(recipes_data).into_keys().collect();
+                let facts = Facts::read_from_directory("facts")?;
 
-                let inventory_contents = std::fs::read_to_string("facts/inventory.ron").unwrap();
-                let inventory_data: Vec<String> = ron::from_str(&inventory_contents).unwrap();
-                let inventory: Vec<Ingredient> =
-                    inventory_data.into_iter().map(Ingredient::new).collect();
-
-                println!("Recipes:");
-                // recipes.iter().for_each(|r| println!("{r}"));
-
-                recipe(recipes, inventory);
+                recipe(facts.recipes, facts.inventory);
             }
         },
         Commands::Server(server) => server.run().await?,
