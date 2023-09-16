@@ -82,6 +82,7 @@ dependencies = [
 name = "annapurna-http"
 version = "0.1.0"
 dependencies = [
+ "annapurna-data",
  "axum",
  "futures-util",
  "html_editor",

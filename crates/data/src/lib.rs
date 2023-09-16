@@ -1,8 +1,10 @@
+use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, path::Path};
 
 pub mod types;
 
 /// A collection of all known recipes and ingredients.
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Facts {
     pub inventory: Vec<types::Ingredient>,
 
