@@ -1,0 +1,7 @@
+[package]
+name = "annapurna-data"
+version = { workspace = true }
+edition = { workspace = true }
+
+[dependencies]
+serde = { workspace = true }
