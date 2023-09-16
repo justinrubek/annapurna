@@ -11,8 +11,8 @@ crate-type = ["cdylib"]
 
 [dependencies]
 annapurna-logic = { path = "../logic" }
-dioxus = "0.3.2"
-dioxus-web = "0.3.2"
+dioxus = "0.4.0"
+dioxus-web = "0.4.0"
 getrandom = { version = "0.2.8", features = ["js"] }
 js-sys = { workspace = true }
 tracing = { workspace = true }
@@ -23,6 +23,7 @@ wasm-logger = "0.2.0"
 version = "0.3.4"
 features = [
     "console",
+    "CssStyleDeclaration",
     "Document",
     "Element",
     "HtmlElement",
