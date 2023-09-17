@@ -1,9 +1,9 @@
 use crate::{routing::Route, state::AppState};
-use annapurna_data::types::{Ingredient, Recipe};
 use dioxus::prelude::*;
 use dioxus_router::components::Router;
 use wasm_bindgen::prelude::*;
 
+mod api;
 mod components;
 mod routing;
 mod state;
@@ -20,16 +20,7 @@ pub fn launch_app() {
 }
 
 fn app(cx: Scope) -> Element {
-    let recipes = vec![Recipe::new(
-        "pizza dough".to_string(),
-        vec![
-            Ingredient::new("flour".to_string()),
-            Ingredient::new("water".to_string()),
-            Ingredient::new("salt".to_string()),
-            Ingredient::new("yeast".to_string()),
-        ],
-    )];
-    use_shared_state_provider(cx, || AppState { recipes });
+    use_shared_state_provider(cx, AppState::default);
 
     render! {
         Router::<Route> { }

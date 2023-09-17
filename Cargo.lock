@@ -105,6 +105,7 @@ dependencies = [
  "dioxus-web",
  "getrandom",
  "js-sys",
+ "reqwest",
  "serde",
  "tracing",
  "wasm-bindgen",
