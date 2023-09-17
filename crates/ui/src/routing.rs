@@ -1,4 +1,4 @@
-use crate::{components::Recipe, state::AppState, util};
+use crate::{api::resolve_recipes, components::Recipe, state::AppState, util};
 use dioxus::prelude::*;
 use dioxus_router::prelude::*;
 
@@ -28,10 +28,6 @@ pub(crate) fn Index(cx: Scope) -> Element {
             },
             "download file"
         }
-        Recipe {
-            name: "pizza dough".to_string(),
-            ingredients: vec!["flour".to_string(), "water".to_string(), "salt".to_string(), "yeast".to_string()],
-        }
     })
 }
 
@@ -45,13 +41,18 @@ pub(crate) fn AppIndex(cx: Scope) -> Element {
 #[allow(non_snake_case)]
 pub(crate) fn AppRecipes(cx: Scope) -> Element {
     let app_state = use_shared_state::<AppState>(cx).unwrap();
+    use_future(cx, (), |_| resolve_recipes(app_state.clone()));
 
     cx.render(rsx! {
-        app_state.read().recipes.iter().map(|recipe| rsx! {
-            Recipe {
-                name: recipe.name.clone(),
-                ingredients: recipe.ingredients.iter().map(|ingredient| ingredient.name.clone()).collect(),
-            }
-        })
+        div {
+            h1 { "Recipes" }
+
+            app_state.read().recipes.iter().map(|recipe| rsx! {
+                Recipe {
+                    name: recipe.name.clone(),
+                    ingredients: recipe.ingredients.iter().map(|ingredient| ingredient.name.clone()).collect(),
+                }
+            })
+        }
     })
 }
