@@ -17,6 +17,7 @@ dioxus-router = "0.4.1"
 dioxus-web = "0.4.0"
 getrandom = { version = "0.2.8", features = ["js"] }
 js-sys = { workspace = true }
+reqwest = { workspace = true }
 serde = { workspace = true }
 tracing = { workspace = true }
 wasm-bindgen = { workspace = true }
@@ -26,6 +27,7 @@ wasm-logger = "0.2.0"
 version = "0.3.4"
 features = [
     "console",
+    "AbortController",
     "CssStyleDeclaration",
     "Document",
     "Element",
