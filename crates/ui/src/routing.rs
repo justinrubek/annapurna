@@ -124,6 +124,14 @@ pub(crate) fn AppRecipes(cx: Scope) -> Element {
                 onclick: |_| creating_recipe.set(true),
                 "add recipe"
             }
+            button {
+                onclick: |_| {
+                    let filename = "recipes.ron";
+                    let text = ron::ser::to_string_pretty(&app_state.read().recipes, Default::default()).unwrap();
+                    util::download_string(filename, &text).expect("failed to download");
+                },
+                "export recipes"
+            }
 
             if *creating_recipe.get() {
                 render! {
