@@ -1,4 +1,7 @@
-use annapurna_data::{types::Recipe, Facts};
+use annapurna_data::{
+    types::{Ingredient, Recipe},
+    Facts,
+};
 use axum::{
     body::{self},
     extract::{FromRef, State},
@@ -9,7 +12,11 @@ use axum::{
 };
 use hyper::{client::HttpConnector, Body};
 use lockpad_auth::PublicKey;
-use std::{collections::HashMap, net::SocketAddr, path::PathBuf};
+use std::{
+    collections::{HashMap, HashSet},
+    net::SocketAddr,
+    path::PathBuf,
+};
 use tower::ServiceBuilder;
 use tower_http::{services::ServeDir, ServiceBuilderExt};
 use tracing::info;
@@ -80,6 +87,7 @@ where
         .route("/login", get(login_redirect))
         .route("/submit", post(dummy_form))
         .route("/recipes", get(get_recipes))
+        .route("/ingredients", get(get_ingredients))
 }
 
 impl Server {
@@ -293,4 +301,18 @@ async fn get_recipes(
     State(ServerState { facts, .. }): State<ServerState>,
 ) -> axum::Json<Vec<Recipe>> {
     axum::Json(facts.recipes)
+}
+
+async fn get_ingredients(
+    State(ServerState { facts, .. }): State<ServerState>,
+) -> axum::Json<HashSet<Ingredient>> {
+    // iterate over all recipes and collect all ingredients
+    let ingredients = facts
+        .recipes
+        .iter()
+        .flat_map(|recipe| recipe.ingredients.iter())
+        .cloned()
+        .collect();
+
+    axum::Json(ingredients)
 }
