@@ -107,6 +107,7 @@ dependencies = [
  "getrandom",
  "js-sys",
  "reqwest",
+ "ron 0.8.1",
  "serde",
  "tracing",
  "wasm-bindgen",
