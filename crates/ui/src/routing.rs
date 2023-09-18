@@ -16,6 +16,12 @@ pub(crate) enum Route {
     AppIndex {},
     #[route("/app/recipes")]
     AppRecipes {},
+    #[route("/app/ingredients")]
+    AppIngredients {},
+    #[route("/app/inventory")]
+    AppInventory {},
+    #[route("/debug")]
+    DebugPage {},
 }
 
 #[allow(non_snake_case)]
@@ -59,6 +65,24 @@ pub(crate) fn Nav(cx: Scope) -> Element {
                 to: Route::AppRecipes {},
                 "recipes"
             }
+            Link {
+                active_class: "active",
+                class: "navlink",
+                to: Route::AppIngredients {},
+                "ingredients"
+            }
+            Link {
+                active_class: "active",
+                class: "navlink",
+                to: Route::AppInventory {},
+                "inventory"
+            }
+            Link {
+                active_class: "active",
+                class: "navlink",
+                to: Route::DebugPage {},
+                "debug"
+            }
         }
 
         Outlet::<Route> { }
@@ -68,14 +92,12 @@ pub(crate) fn Nav(cx: Scope) -> Element {
 #[allow(non_snake_case)]
 pub(crate) fn Index(cx: Scope) -> Element {
     cx.render(rsx! {
-        div { "hello, wasm!" }
-        button {
-            onclick: |_| async move {
-                let filename = "test.txt";
-                let text = "hello, wasm!";
-                util::download_string(filename, text).expect("failed to download");
-            },
-            "download file"
+        p {
+            r#"Annapurna is a cooking and lifestyle utility.
+            Using it will allow you to improve your diet by making nutritional choices easier.
+            You can use it to plan and track your diet, and it will save you time and money by reducing the amount of
+            food you waste.
+            "#,
         }
     })
 }
@@ -122,5 +144,36 @@ pub(crate) fn AppRecipes(cx: Scope) -> Element {
                 }
             })
         }
+    })
+}
+
+#[allow(non_snake_case)]
+pub(crate) fn DebugPage(cx: Scope) -> Element {
+    cx.render(rsx! {
+        div {
+            h1 { "Debug" }
+            button {
+                onclick: |_| async move {
+                    let filename = "test.txt";
+                    let text = "hello, wasm!";
+                    util::download_string(filename, text).expect("failed to download");
+                },
+                "download file"
+            }
+        }
+    })
+}
+
+#[allow(non_snake_case)]
+pub(crate) fn AppIngredients(cx: Scope) -> Element {
+    cx.render(rsx! {
+        div { "app ingredients" }
+    })
+}
+
+#[allow(non_snake_case)]
+pub(crate) fn AppInventory(cx: Scope) -> Element {
+    cx.render(rsx! {
+        div { "app inventory" }
     })
 }
