@@ -101,6 +101,7 @@ dependencies = [
  "annapurna-data",
  "annapurna-logic",
  "dioxus",
+ "dioxus-html",
  "dioxus-router",
  "dioxus-web",
  "getrandom",

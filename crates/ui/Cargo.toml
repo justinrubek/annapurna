@@ -13,6 +13,7 @@ crate-type = ["cdylib"]
 annapurna-data = { path = "../data" }
 annapurna-logic = { path = "../logic" }
 dioxus = "0.4.0"
+dioxus-html = "0.4.0"
 dioxus-router = "0.4.1"
 dioxus-web = "0.4.0"
 getrandom = { version = "0.2.8", features = ["js"] }
