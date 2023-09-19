@@ -115,6 +115,40 @@ pub(crate) fn RecipeCreate<'a>(cx: Scope<'a, CreateFormProps<'a, RecipeData>>) -
     })
 }
 
+#[allow(non_snake_case)]
+pub(crate) fn IngredientCreate<'a>(cx: Scope<'a, CreateFormProps<'a, Ingredient>>) -> Element<'a> {
+    let name = use_state(cx, || "".to_string());
+
+    cx.render(rsx! {
+        div {
+            style: r#"display: flex; flex-direction: column; border: 1px solid black; padding: 1rem;"#,
+
+            h3 { "Create Ingredient" }
+
+            label { r#for: "name", "Name" }
+            input {
+                id: "name",
+                value: "{name}",
+                oninput: |event| name.set(event.value.clone()),
+            }
+
+            button {
+                onclick: |_| {
+                    let ingredient = annapurna_data::types::Ingredient {
+                        name: name.get().clone(),
+                    };
+                    cx.props.on_create.call(ingredient);
+                },
+                "create"
+            }
+            button {
+                onclick: |_| cx.props.on_cancel.call(()),
+                "cancel"
+            }
+        }
+    })
+}
+
 #[derive(Props, PartialEq)]
 pub(crate) struct DatalistProps<'a> {
     id: &'a str,
