@@ -1,6 +1,6 @@
 use crate::{
     api::resolve_recipes,
-    components::{Recipe, RecipeCreate},
+    components::{IngredientCreate, Recipe, RecipeCreate},
     state::AppState,
     util,
 };
@@ -137,7 +137,7 @@ pub(crate) fn AppRecipes(cx: Scope) -> Element {
                 render! {
                     RecipeCreate {
                         on_create: |recipe| {
-                            app_state.write().recipes.push(recipe);
+                            app_state.write().add_recipe(recipe);
                             creating_recipe.set(false);
                         },
                         on_cancel: |_| creating_recipe.set(false),
@@ -145,10 +145,20 @@ pub(crate) fn AppRecipes(cx: Scope) -> Element {
                 }
             }
 
-            app_state.read().recipes.iter().map(|recipe| rsx! {
-                Recipe {
-                    name: recipe.name.clone(),
-                    ingredients: recipe.ingredients.iter().map(|ingredient| ingredient.name.clone()).collect(),
+            app_state.read().recipes.iter().cloned().map(|recipe| {
+                 rsx! {
+                    div {
+                        Recipe {
+                            name: recipe.name.clone(),
+                            ingredients: recipe.ingredients.iter().map(|ingredient| ingredient.name.clone()).collect(),
+                        }
+                        button {
+                            onclick: move |_| {
+                                app_state.write().remove_recipe(&recipe.name);
+                            },
+                            "remove"
+                        }
+                    }
                 }
             })
         }
@@ -174,8 +184,51 @@ pub(crate) fn DebugPage(cx: Scope) -> Element {
 
 #[allow(non_snake_case)]
 pub(crate) fn AppIngredients(cx: Scope) -> Element {
+    let app_state = use_shared_state::<AppState>(cx).unwrap();
+
+    let creating_ingredient = use_state(cx, || false);
+
     cx.render(rsx! {
-        div { "app ingredients" }
+        div {
+            h1 { "Ingredients" }
+
+            button {
+                onclick: |_| creating_ingredient.set(true),
+                "add ingredient"
+            }
+            button {
+                onclick: |_| {
+                    let filename = "ingredients.ron";
+                    let text = ron::ser::to_string_pretty(&app_state.read().ingredients, Default::default()).unwrap();
+                    util::download_string(filename, &text).expect("failed to download");
+                },
+                "export ingredients"
+            }
+
+            if *creating_ingredient.get() {
+                render! {
+                    IngredientCreate {
+                        on_create: |ingredient| {
+                            app_state.write().add_ingredient(ingredient);
+                            creating_ingredient.set(false);
+                        },
+                        on_cancel: |_| creating_ingredient.set(false),
+                    }
+                }
+            }
+
+            app_state.read().ingredients.iter().cloned().map(|ingredient| rsx! {
+                div {
+                    p { format!("name: {}", &ingredient.name) }
+                    button {
+                        onclick: move |_| {
+                            app_state.write().remove_ingredient(&ingredient.name);
+                        },
+                        "remove"
+                    }
+                }
+            })
+        }
     })
 }
 
