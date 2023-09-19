@@ -15,7 +15,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             BasicCommands::Run => {
                 let facts = Facts::read_from_directory("facts")?;
 
-                recipe(facts.recipes, facts.inventory);
+                let res = recipe(facts.recipes, facts.inventory);
+                let can_make = res.can_make;
+                let missing = res.missing;
+                println!("Can make: {can_make:?}");
+                println!("Missing: {missing:?}");
             }
         },
         Commands::Server(server) => server.run().await?,

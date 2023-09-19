@@ -9,16 +9,11 @@ mod recipe;
 mod tests;
 
 use program::AscentProgram;
-use recipe::RecipeManager;
+use recipe::{RecipeManager, RecipeResult};
 
-pub fn recipe(recipes: Vec<Recipe>, has_ingredients: Vec<Ingredient>) {
+pub fn recipe(recipes: Vec<Recipe>, has_ingredients: Vec<Ingredient>) -> RecipeResult {
     // convert to String
     let manager = RecipeManager::new(has_ingredients, recipes);
 
-    let res = manager.process();
-
-    let can_make = res.can_make;
-    let missing = res.missing;
-    println!("Can make: {can_make:?}");
-    println!("Missing: {missing:?}");
+    manager.process()
 }
