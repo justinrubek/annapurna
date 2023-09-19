@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use annapurna_data::types::Ingredient;
+use annapurna_data::types::{Ingredient, Recipe as RecipeData};
 use dioxus::prelude::*;
 use dioxus_html::input_data::keyboard_types::Key;
 
@@ -30,13 +30,13 @@ pub(crate) fn Recipe(cx: Scope<RecipeProps>) -> Element {
 }
 
 #[derive(Props)]
-pub(crate) struct RecipeCreateProps<'a> {
-    on_create: EventHandler<'a, annapurna_data::types::Recipe>,
+pub(crate) struct CreateFormProps<'a, T> {
+    on_create: EventHandler<'a, T>,
     on_cancel: EventHandler<'a, ()>,
 }
 
 #[allow(non_snake_case)]
-pub(crate) fn RecipeCreate<'a>(cx: Scope<'a, RecipeCreateProps<'a>>) -> Element<'a> {
+pub(crate) fn RecipeCreate<'a>(cx: Scope<'a, CreateFormProps<'a, RecipeData>>) -> Element<'a> {
     let app_state = use_shared_state::<AppState>(cx).unwrap();
     let name = use_state(cx, || "".to_string());
     let ingredients = use_ref::<HashSet<String>>(cx, HashSet::new);
