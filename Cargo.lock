@@ -264,9 +264,9 @@ dependencies = [
 
 [[package]]
 name = "async-watcher"
-version = "0.1.1"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f592305b7e0a9375714169a15870cd1c75763ca58a40e3d9a9d55d7d969f128"
+checksum = "bacb0b348a5dc507de0234ae0627d09c6f5ca6d257a084872f01a294616b9517"
 dependencies = [
  "async-trait",
  "notify",
