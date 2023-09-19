@@ -1,9 +1,6 @@
 use annapurna::config::Config;
 use annapurna_data::Facts;
-use async_watcher::{
-    notify::{RecommendedWatcher, RecursiveMode},
-    AsyncDebouncer, DebouncedEvent,
-};
+use async_watcher::{notify::RecursiveMode, AsyncDebouncer};
 use lockpad_auth::PublicKey;
 use std::path::Path;
 use tokio::time::Duration;
@@ -66,8 +63,18 @@ impl ServerCommand {
                 let files_path = worktree.join("public");
                 let crates_path = worktree.join("crates");
 
-                let (mut file_events, _debouncer) =
-                    async_debounce_watch(vec![files_path, crates_path]).await?;
+                let (mut debouncer, mut file_events) = AsyncDebouncer::new_with_channel(
+                    Duration::from_secs(1),
+                    Some(Duration::from_secs(1)),
+                )
+                .await?;
+
+                [files_path, crates_path].iter().for_each(|p| {
+                    debouncer
+                        .watcher()
+                        .watch(p.as_ref(), RecursiveMode::Recursive)
+                        .unwrap();
+                });
 
                 // build the static files
                 let static_path = build_static(&worktree).await?;
@@ -113,33 +120,6 @@ impl ServerCommand {
 
         Ok(())
     }
-}
-
-/// Watches all given paths for changes.
-/// When a change is detected, run triggers the server to rebuild.
-pub async fn async_debounce_watch<P: AsRef<Path>>(
-    paths: Vec<P>,
-) -> Result<
-    (
-        tokio::sync::mpsc::Receiver<Result<Vec<DebouncedEvent>, Vec<notify::Error>>>,
-        AsyncDebouncer<RecommendedWatcher>,
-    ),
-    Box<dyn std::error::Error>,
-> {
-    let (tx, rx) = tokio::sync::mpsc::channel(1);
-
-    let mut debouncer =
-        AsyncDebouncer::new(Duration::from_secs(1), Some(Duration::from_secs(1)), tx).await?;
-
-    // add the paths to the watcher
-    paths.iter().for_each(|p| {
-        debouncer
-            .watcher()
-            .watch(p.as_ref(), RecursiveMode::Recursive)
-            .unwrap();
-    });
-
-    Ok((rx, debouncer))
 }
 
 async fn build_static(

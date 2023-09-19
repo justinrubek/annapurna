@@ -11,7 +11,7 @@ path = "src/main.rs"
 annapurna-data = { path = "../data" }
 annapurna-logic = { path = "../logic" }
 annapurna-http = { path = "../http" }
-async-watcher = "0.1.1"
+async-watcher = "0.2.0"
 clap = { version = "4.1.13", features = ["derive"] }
 config = "0.13.3"
 gix-discover = "0.16.1"
