@@ -3,7 +3,7 @@ use annapurna_data::types::{Ingredient, Recipe};
 mod aggregators;
 pub mod error;
 pub mod program;
-mod recipe;
+pub mod recipe;
 
 #[cfg(test)]
 mod tests;
