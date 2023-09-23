@@ -5,6 +5,7 @@ use crate::{
     util,
 };
 use annapurna_data::types::Ingredient;
+use annapurna_logic::recipe::RecipeResult;
 use dioxus::prelude::*;
 use dioxus_router::prelude::*;
 
@@ -21,6 +22,8 @@ pub(crate) enum Route {
     AppIngredients {},
     #[route("/app/inventory")]
     AppInventory {},
+    #[route("/app/logic/viewer")]
+    AppLogicViewer {},
     #[route("/debug")]
     DebugPage {},
 }
@@ -77,6 +80,12 @@ pub(crate) fn Nav(cx: Scope) -> Element {
                 class: "navlink",
                 to: Route::AppInventory {},
                 "inventory"
+            }
+            Link {
+                active_class: "active",
+                class: "navlink",
+                to: Route::AppLogicViewer {},
+                "logic viewer"
             }
             Link {
                 active_class: "active",
@@ -290,6 +299,56 @@ pub(crate) fn AppInventory(cx: Scope) -> Element {
                     }
                 }
             })
+        }
+    })
+}
+
+#[allow(non_snake_case)]
+pub(crate) fn AppLogicViewer(cx: Scope) -> Element {
+    let app_state = use_shared_state::<AppState>(cx).unwrap();
+
+    let recipe_result = use_state::<Option<RecipeResult>>(cx, || None);
+
+    cx.render(rsx! {
+        button {
+            onclick: |_| {
+                let app_state = app_state.clone();
+                let recipe_result = recipe_result.clone();
+                cx.spawn({
+                    async move {
+                        let app_state = app_state.read();
+                        let result = annapurna_logic::recipe(app_state.recipes.clone(), app_state.inventory.clone());
+                        web_sys::console::log_1(&wasm_bindgen::JsValue::from_str(&format!("{:?}", result)));
+                        recipe_result.set(Some(result));
+
+                    }
+                });
+            },
+            "perform logic"
+        }
+
+        if let Some(result) = recipe_result.get() {
+            rsx! {
+                div {
+                    h3 { "can make these recipes" }
+                    for recipe in result.can_make.iter().cloned() {
+                        ul {
+                            p { "{recipe}" }
+                        }
+                    }
+
+                    h3 { "missing items for these recipes" }
+                    for (recipe, ingredients) in result.missing.iter() {
+                        ul {
+                            p { "{recipe}" }
+                            for ingredient in ingredients.iter().cloned() {
+                                li { "{ingredient}" }
+                            }
+                        }
+                    }
+
+                }
+            }
         }
     })
 }

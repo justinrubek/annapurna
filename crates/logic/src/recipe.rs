@@ -104,7 +104,7 @@ impl AscentProgram for RecipeManager {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct RecipeResult {
     pub can_make: Vec<Recipe>,
     // pub missing: Vec<(Recipe, Vec<Ingredient>)>,
