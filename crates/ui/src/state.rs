@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 pub(crate) struct AppState {
     pub recipes: Vec<Recipe>,
     pub ingredients: Vec<Ingredient>,
+    pub inventory: Vec<Ingredient>,
 }
 
 impl AppState {
@@ -22,5 +23,17 @@ impl AppState {
 
     pub fn remove_ingredient(&mut self, name: &str) {
         self.ingredients.retain(|i| i.name != name);
+    }
+
+    pub fn add_inventory(&mut self, ingredient: Ingredient) {
+        self.inventory.push(ingredient);
+    }
+
+    pub fn remove_inventory(&mut self, name: &str) {
+        self.inventory.retain(|i| i.name != name);
+    }
+
+    pub fn set_inventory(&mut self, ingredients: Vec<Ingredient>) {
+        self.inventory = ingredients;
     }
 }
