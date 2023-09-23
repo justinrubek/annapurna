@@ -1,5 +1,4 @@
 use crate::{
-    api::resolve_recipes,
     components::{IngredientCreate, Recipe, RecipeCreate},
     state::AppState,
     util,
@@ -122,7 +121,6 @@ pub(crate) fn AppIndex(cx: Scope) -> Element {
 #[allow(non_snake_case)]
 pub(crate) fn AppRecipes(cx: Scope) -> Element {
     let app_state = use_shared_state::<AppState>(cx).unwrap();
-    use_future(cx, (), |_| resolve_recipes(app_state.clone()));
 
     let creating_recipe = use_state(cx, || false);
 
