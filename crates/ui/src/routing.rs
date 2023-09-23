@@ -4,6 +4,7 @@ use crate::{
     state::AppState,
     util,
 };
+use annapurna_data::types::Ingredient;
 use dioxus::prelude::*;
 use dioxus_router::prelude::*;
 
@@ -234,7 +235,61 @@ pub(crate) fn AppIngredients(cx: Scope) -> Element {
 
 #[allow(non_snake_case)]
 pub(crate) fn AppInventory(cx: Scope) -> Element {
+    let app_state = use_shared_state::<AppState>(cx).unwrap();
+
     cx.render(rsx! {
-        div { "app inventory" }
+        div {
+            h1 { "Inventory" }
+
+            div {
+                input {
+                    r#type: "file",
+                    multiple: false,
+                    onchange: move |event| {
+                        let app_state = app_state.clone();
+                        let files = event.files.clone();
+
+                        cx.spawn({
+                            async move {
+                                if let Some(file_engine) = files {
+                                    let files = file_engine.files();
+                                    let empty_filename = String::new();
+                                    let filename = files.first().unwrap_or(&empty_filename);
+                                    match file_engine.read_file(filename).await {
+                                        Some(contents) => {
+                                            let items: Vec<Ingredient> = ron::de::from_bytes(&contents).unwrap();
+                                            app_state.write().set_inventory(items);
+                                        }
+                                        None => {
+                                            tracing::error!("no content");
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    },
+                }
+            }
+            button {
+                onclick: |_| {
+                    let filename = "inventory.ron";
+                    let text = ron::ser::to_string_pretty(&app_state.read().inventory, Default::default()).unwrap();
+                    util::download_string(filename, &text).expect("failed to download");
+                },
+                "export inventory"
+            }
+
+            app_state.read().inventory.iter().cloned().map(|ingredient| rsx! {
+                div {
+                    p { format!("name: {}", &ingredient.name) }
+                    button {
+                        onclick: move |_| {
+                            app_state.write().remove_inventory(&ingredient.name);
+                        },
+                        "remove"
+                    }
+                }
+            })
+        }
     })
 }
