@@ -20,3 +20,12 @@ tower = { version = "0.4" }
 tower-http = { version = "0.3.0", features = ["fs", "cors", "map-response-body", "map-request-body", "util"] }
 tower-layer = "0.3.2"
 tracing = { workspace = true }
+
+[dependencies.dioxus-fullstack] 
+version = "0.4.1"
+default-features = false
+features = ["rustls"] 
+
+[features]
+default = []
+ssr = ["dioxus-fullstack/axum"]
