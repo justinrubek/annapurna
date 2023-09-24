@@ -21,6 +21,9 @@
       url = "github:justinrubek/bomper";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    wasm-bindgen-service-worker = {
+      url = "github:justinrubek/wasm-bindgen-service-worker";
+    };
   };
 
   outputs = inputs @ {
