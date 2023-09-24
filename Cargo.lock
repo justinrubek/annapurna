@@ -76,7 +76,9 @@ name = "annapurna-http"
 version = "0.2.0"
 dependencies = [
  "annapurna-data",
+ "annapurna-ui",
  "axum",
+ "dioxus",
  "dioxus-fullstack",
  "futures-util",
  "html_editor",
@@ -113,6 +115,7 @@ dependencies = [
  "annapurna-data",
  "annapurna-logic",
  "dioxus",
+ "dioxus-fullstack",
  "dioxus-html",
  "dioxus-router",
  "dioxus-web",
@@ -397,7 +400,7 @@ dependencies = [
  "heck",
  "proc-macro2",
  "quote",
- "syn 2.0.35",
+ "syn 2.0.37",
 ]
 
 [[package]]
@@ -1063,7 +1066,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "server_fn_macro",
- "syn 2.0.35",
+ "syn 2.0.37",
 ]
 
 [[package]]
@@ -3155,7 +3158,7 @@ dependencies = [
  "serde_json",
  "serde_qs",
  "server_fn_macro_default",
- "syn 2.0.35",
+ "syn 2.0.37",
  "thiserror",
  "xxhash-rust",
 ]
@@ -3171,7 +3174,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "serde",
- "syn 2.0.35",
+ "syn 2.0.37",
  "xxhash-rust",
 ]
 
@@ -3182,7 +3185,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8dba6c99de6539ec3193130f764427ead9d784a76ca3126f38e56a6a0b7a2f3d"
 dependencies = [
  "server_fn_macro",
- "syn 2.0.35",
+ "syn 2.0.37",
 ]
 
 [[package]]

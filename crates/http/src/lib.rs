@@ -2,6 +2,7 @@ use annapurna_data::{
     types::{Ingredient, Recipe},
     Facts,
 };
+use annapurna_ui;
 use axum::{
     body::{self},
     extract::{FromRef, State},
@@ -10,6 +11,8 @@ use axum::{
     routing::{get, get_service, post},
     Form, Router, TypedHeader,
 };
+use dioxus::prelude::*;
+use dioxus_fullstack::prelude::*;
 use hyper::{client::HttpConnector, Body};
 use lockpad_auth::PublicKey;
 use std::{
@@ -132,9 +135,12 @@ impl Server {
             ),
         );
 
+        let dioxus_serve_config = ServeConfigBuilder::new(app, ());
+
         let app = Router::new()
             .nest("/api", api_routes())
             .with_state(state)
+            .serve_dioxus_application("", dioxus_serve_config)
             .fallback_service(serve_service)
             .layer(cors);
 
@@ -315,4 +321,10 @@ async fn get_ingredients(
         .collect();
 
     axum::Json(ingredients)
+}
+
+fn app<'a>(cx: &'a Scoped<'a>) -> Element<'a> {
+    cx.render(rsx! {
+        p { "hello" }
+    })
 }
