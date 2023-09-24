@@ -8,9 +8,13 @@
     ...
   }: let
     ciPackages = [
+      self'.packages.cocogitto
+      self'.packages.bomper
     ];
 
     packages = {
+      cocogitto = pkgs.cocogitto;
+      bomper = inputs'.bomper.packages.cli;
     };
 
     devShells = {
