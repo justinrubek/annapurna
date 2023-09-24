@@ -1,31 +1,60 @@
 [package]
 name = "annapurna"
-version = "0.1.0"
 edition = "2021"
-
-[[bin]]
-name = "annapurna-cli"
-path = "src/main.rs"
+version = "0.2.0"
 
 [dependencies]
-annapurna-data = { path = "../data" }
-annapurna-logic = { path = "../logic" }
-annapurna-http = { path = "../http" }
 async-watcher = "0.2.0"
-clap = { version = "4.1.13", features = ["derive"] }
 config = "0.13.3"
+futures = "0.3.27"
 gix-discover = "0.16.1"
+http-body = "0.4.5"
 lockpad-auth = "0.2.0"
-ron = { workspace = true }
-# clap = { version = "4.0.19", features = ["derive"] }
-# reqwest = { version = "0.11.12", features = ["rustls-tls"] }
-serde = { version = "1", features = ["derive"] }
 serde_json = "1.0.87"
 tracing-subscriber = "0.3.16"
-reqwest = { version = "0.11.14", default-features = false, features = ["rustls-tls", "json"] }
-tokio.workspace = true
-tracing.workspace = true
-http-body = "0.4.5"
-notify = { workspace = true }
-futures = "0.3.27"
-# tokio = { version = "1", features = ["full"] }
+
+[dependencies.annapurna-data]
+path = "../data"
+features = []
+
+[dependencies.annapurna-http]
+path = "../http"
+features = []
+
+[dependencies.annapurna-logic]
+path = "../logic"
+features = []
+
+[dependencies.clap]
+version = "4.1.13"
+features = ["derive"]
+
+[dependencies.notify]
+features = []
+workspace = true
+
+[dependencies.reqwest]
+version = "0.11.14"
+features = ["rustls-tls", "json"]
+default-features = false
+
+[dependencies.ron]
+features = []
+workspace = true
+
+[dependencies.serde]
+version = "1"
+features = ["derive"]
+
+[dependencies.tokio]
+features = []
+workspace = true
+
+[dependencies.tracing]
+features = []
+workspace = true
+
+[[bin]]
+path = "src/main.rs"
+name = "annapurna-cli"
+required-features = []
