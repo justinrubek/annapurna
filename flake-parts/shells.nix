@@ -19,9 +19,6 @@
       pkgs.cargo-nextest
       pkgs.bacon
       pkgs.wasm-bindgen-cli
-      # version control
-      pkgs.cocogitto
-      inputs'.bomper.packages.cli
       # formatting
       self'.packages.treefmt
     ];
