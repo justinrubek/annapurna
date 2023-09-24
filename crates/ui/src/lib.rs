@@ -1,5 +1,6 @@
 use crate::{
     api::{resolve_ingredients, resolve_recipes},
+    components::Datalist,
     routing::Route,
     state::AppState,
 };
@@ -32,5 +33,10 @@ fn app(cx: Scope) -> Element {
 
     render! {
         Router::<Route> { }
+
+        Datalist {
+            id: "annapurna-ingredients",
+            items: app_state.read().ingredients.iter().map(|i| i.to_string()).collect(),
+        }
     }
 }

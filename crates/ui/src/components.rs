@@ -4,8 +4,6 @@ use annapurna_data::types::{Ingredient, Recipe as RecipeData};
 use dioxus::prelude::*;
 use dioxus_html::input_data::keyboard_types::Key;
 
-use crate::state::AppState;
-
 #[derive(PartialEq, Props)]
 pub(crate) struct RecipeProps {
     name: String,
@@ -37,7 +35,6 @@ pub(crate) struct CreateFormProps<'a, T> {
 
 #[allow(non_snake_case)]
 pub(crate) fn RecipeCreate<'a>(cx: Scope<'a, CreateFormProps<'a, RecipeData>>) -> Element<'a> {
-    let app_state = use_shared_state::<AppState>(cx).unwrap();
     let name = use_state(cx, || "".to_string());
     let ingredients = use_ref::<HashSet<String>>(cx, HashSet::new);
 
@@ -105,11 +102,6 @@ pub(crate) fn RecipeCreate<'a>(cx: Scope<'a, CreateFormProps<'a, RecipeData>>) -
             button {
                 onclick: |_| cx.props.on_cancel.call(()),
                 "cancel"
-            }
-
-            Datalist {
-                id: "annapurna-ingredients",
-                items: app_state.read().ingredients.iter().map(|i| i.to_string()).collect(),
             }
         }
     })
