@@ -1,5 +1,5 @@
 use crate::{
-    components::{IngredientCreate, Recipe, RecipeCreate},
+    components::{IngredientCreate, InventoryCreate, Recipe, RecipeCreate},
     state::AppState,
     util,
 };
@@ -244,6 +244,8 @@ pub(crate) fn AppIngredients(cx: Scope) -> Element {
 pub(crate) fn AppInventory(cx: Scope) -> Element {
     let app_state = use_shared_state::<AppState>(cx).unwrap();
 
+    let creating_inventory = use_state(cx, || false);
+
     cx.render(rsx! {
         div {
             h1 { "Inventory" }
@@ -278,12 +280,28 @@ pub(crate) fn AppInventory(cx: Scope) -> Element {
                 }
             }
             button {
+                onclick: |_| creating_inventory.set(true),
+                "add ingredient"
+            }
+            button {
                 onclick: |_| {
                     let filename = "inventory.ron";
                     let text = ron::ser::to_string_pretty(&app_state.read().inventory, Default::default()).unwrap();
                     util::download_string(filename, &text).expect("failed to download");
                 },
                 "export inventory"
+            }
+
+            if *creating_inventory.get() {
+                render! {
+                    InventoryCreate {
+                        on_create: |ingredient| {
+                            app_state.write().add_inventory(ingredient);
+                            creating_inventory.set(false);
+                        },
+                        on_cancel: |_| creating_inventory.set(false),
+                    }
+                }
             }
 
             app_state.read().inventory.iter().cloned().map(|ingredient| rsx! {
@@ -329,22 +347,27 @@ pub(crate) fn AppLogicViewer(cx: Scope) -> Element {
             rsx! {
                 div {
                     h3 { "can make these recipes" }
-                    for recipe in result.can_make.iter().cloned() {
-                        ul {
-                            p { "{recipe}" }
-                        }
-                    }
-
-                    h3 { "missing items for these recipes" }
-                    for (recipe, ingredients) in result.missing.iter() {
-                        ul {
-                            p { "{recipe}" }
-                            for ingredient in ingredients.iter().cloned() {
-                                li { "{ingredient}" }
+                    ul {
+                        for recipe in result.can_make.iter().cloned() {
+                            li {
+                                "{recipe}"
                             }
                         }
                     }
 
+                    h3 { "missing items for these recipes" }
+                    ul {
+                        for (recipe, ingredients) in result.missing.iter() {
+                            li {
+                                h4 { "{recipe}" }
+                                ul {
+                                    for ingredient in ingredients.iter().cloned() {
+                                        li { "{ingredient}" }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
