@@ -95,6 +95,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "annapurna-service-worker"
+version = "0.2.0"
+dependencies = [
+ "anyhow",
+ "js-sys",
+ "thiserror",
+ "tracing",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
+]
+
+[[package]]
 name = "annapurna-ui"
 version = "0.2.0"
 dependencies = [
