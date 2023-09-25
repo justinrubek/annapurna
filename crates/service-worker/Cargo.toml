@@ -1,0 +1,37 @@
+[package]
+name = "annapurna-service-worker"
+version = { workspace = true }
+edition = { workspace = true }
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+anyhow = { workspace = true }
+js-sys = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+wasm-bindgen = { workspace = true }
+wasm-bindgen-futures = { workspace = true }
+
+[dependencies.web-sys]
+version = "0.3.4"
+features = [
+    "console",
+    "Clients",
+    "ExtendableEvent",
+    "ExtendableMessageEvent",
+    "FetchEvent",
+    "Location",
+    "Navigator",
+    "Node",
+    "Window",
+    "RegistrationOptions",
+    "Request",
+    "ServiceWorkerGlobalScope",
+    "ServiceWorkerRegistration",
+    "ServiceWorkerState",
+    "ServiceWorker",
+    "ServiceWorkerContainer",
+    "Url",
+]
