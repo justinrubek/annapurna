@@ -16,10 +16,16 @@
     };
 
     # generate bash script that copies the contents of all the wasm-modules into their respective directories
-    wasm-modules-includes = lib.concatMapStringsSep "\n" (name: ''
-      mkdir -p $out/public/wasm/${name}
-      cp -r ${wasm-modules.${name}}/* $out/public/wasm/${name}
-    '') (builtins.attrNames wasm-modules);
+    wasm-modules-includes = {
+      # attrset of modules to include
+      modules,
+      # directory name inside public to copy the modules into
+      dirName,
+    }:
+      lib.concatMapStringsSep "\n" (name: ''
+        mkdir -p $out/public/${dirName}/${name}
+        cp -r ${modules.${name}}/* $out/public/${dirName}/${name}
+      '') (builtins.attrNames modules);
 
     static-files = pkgs.runCommand "static-files" {} ''
       mkdir -p $out
@@ -28,7 +34,10 @@
 
       cp -r ${../public}/* $out/public
 
-      ${wasm-modules-includes}
+      ${wasm-modules-includes {
+        modules = wasm-modules;
+        dirName = "wasm";
+      }}
     '';
   in rec {
     packages = {
