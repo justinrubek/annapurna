@@ -100,6 +100,10 @@
         }
         // commonArgs);
 
+      service-worker = buildWasmPackage {
+        name = "annapurna-service-worker";
+      };
+
       ui = buildWasmPackage {
         name = "annapurna-ui";
       };
