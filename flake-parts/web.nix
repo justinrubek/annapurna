@@ -13,6 +13,7 @@
       loader = inputs'.wasm-bindgen-service-worker.packages.loader;
       ui = self'.packages.ui;
       wasm = self'.packages.wasm;
+      service-worker = self'.packages.service-worker;
     };
 
     # generate bash script that copies the contents of all the wasm-modules into their respective directories
