@@ -14,16 +14,17 @@
     </div>
 
     <script type="module">
-        import init, {basic_register_service_worker, register_service_worker} from '/wasm/loader/service_worker_loader.js';
+        import init, {basic_register_service_worker} from '/wasm/loader/service_worker_loader.js';
 
         async function run() {
             await init();
 
-            const result = await register_service_worker(
-                "/sw.js",
-                false,
+            const result = await basic_register_service_worker(
+                "/sw-module.js",
+                "module",
+                "/",
             ).then(serviceWorker => {
-                console.log("index: Service worker registered");
+                console.log("login-callback: Service worker registered");
                 // serviceWorker.postMessage({type: "post-register"});
 
                 // retrieve the token from the URL params
@@ -32,10 +33,12 @@
 
                 // send the token to the service worker
                 serviceWorker.postMessage({
-                    type: "login-callback",
+                    type: "LoginCallback",
                     token: token,
-                    redirectTo: "/",
+                    redirect_to: "/",
                 });
+
+                console.log("login-callback: Sent login-callback message to service worker");
 
                 return serviceWorker;
             });

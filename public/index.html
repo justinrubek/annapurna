@@ -21,22 +21,29 @@
     </div>
 
     <script type="module">
-        import init, {basic_register_service_worker, register_service_worker} from '/wasm/loader/service_worker_loader.js';
+        import init, {basic_register_service_worker} from '/wasm/loader/service_worker_loader.js';
 
         async function run() {
             await init();
 
-            const result = await register_service_worker(
-                "/sw.js",
-                false,
-            ).then(serviceWorker => {
-                console.log("index: Service worker registered");
-                serviceWorker.postMessage({type: "post-register"});
+            try {
+                const result = await basic_register_service_worker(
+                    "sw-module.js",
+                    "module",
+                    // "/sw.js",
+                    // "classic",
+                    "/",
+                ).then(serviceWorker => {
+                    console.log("index: Service worker registered");
+                    serviceWorker.postMessage({type: "PostRegister"});
 
-                return serviceWorker;
-            });
+                    return serviceWorker;
+                });
 
-            console.log(result);
+                console.log(result);
+            } catch (e) {
+                console.error(e);
+            }
         }
 
         run();

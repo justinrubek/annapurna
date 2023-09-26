@@ -14,18 +14,19 @@
     </div>
 
     <script type="module">
-        import init, {basic_register_service_worker, register_service_worker} from '/wasm/loader/service_worker_loader.js';
+        import init, {basic_register_service_worker} from '/wasm/loader/service_worker_loader.js';
 
         async function run() {
             await init();
 
-            const result = await register_service_worker(
-                "/sw.js",
-                false,
+            const result = await basic_register_service_worker(
+                "/sw-module.js",
+                "module",
+                "/",
             ).then(serviceWorker => {
                 serviceWorker.postMessage({
-                    type: "logout",
-                    redirectTo: "/",
+                    type: "Logout",
+                    redirect_to: "/",
                 });
 
                 return serviceWorker;
