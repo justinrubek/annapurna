@@ -39,6 +39,9 @@
         modules = wasm-modules;
         dirName = "wasm";
       }}
+
+      # the service worker needs to be in the root of the public directory in order to have scope over the entire site
+      cp ${self'.packages.service-worker}/* $out/public
     '';
   in rec {
     packages = {

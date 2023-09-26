@@ -10,4 +10,4 @@ crate-type = ["cdylib"]
 annapurna-logic = { path = "../logic" }
 tracing = { workspace = true }
 wasm-bindgen = { workspace = true }
-wasm-logger = "0.2.0"
+wasm-logger = { workspace = true }
