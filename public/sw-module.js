@@ -1,4 +1,4 @@
-import init, { on_message, on_fetch } from "/wasm/service-worker/annapurna_service_worker.js";
+import init, { on_message, on_fetch } from "/js/service-worker/annapurna_service_worker.js";
 
 console.log("start: sw-module.js");
 
