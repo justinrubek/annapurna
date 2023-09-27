@@ -8,8 +8,8 @@
     self',
     ...
   }: let
-    # wasm-bindgen modules to include in the files
-    wasm-modules = {
+    # ES modules to include in the files
+    es-modules = {
       loader = inputs'.wasm-bindgen-service-worker.packages.loader;
       ui = self'.packages.ui;
       wasm = self'.packages.wasm;
@@ -17,7 +17,7 @@
     };
 
     # generate bash script that copies the contents of all the wasm-modules into their respective directories
-    wasm-modules-includes = {
+    modules-includes = {
       # attrset of modules to include
       modules,
       # directory name inside public to copy the modules into
@@ -35,9 +35,9 @@
 
       cp -r ${../public}/* $out/public
 
-      ${wasm-modules-includes {
-        modules = wasm-modules;
-        dirName = "wasm";
+      ${modules-includes {
+        modules = es-modules;
+        dirName = "js";
       }}
 
       # the service worker needs to be in the root of the public directory in order to have scope over the entire site
