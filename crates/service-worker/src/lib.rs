@@ -5,7 +5,9 @@ use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 use web_sys::{console, ServiceWorkerGlobalScope};
 
+mod constants;
 pub mod error;
+mod state;
 
 /// Called when the wasm module is instantiated
 #[wasm_bindgen(start)]
@@ -38,7 +40,7 @@ enum WorkerMessage {
 
 /// Called by the service worker's `message` event.
 #[wasm_bindgen]
-pub fn on_message(event: web_sys::ExtendableMessageEvent) {
+pub async fn on_message(event: web_sys::ExtendableMessageEvent) {
     info!("on_message");
 
     match event.data().into_serde() {
@@ -47,7 +49,11 @@ pub fn on_message(event: web_sys::ExtendableMessageEvent) {
                 "LoginCallback {{ token: {:?}, redirect_to: {:?} }}",
                 token, redirect_to
             );
-            // TODO: store token in locally
+
+            let rexie = state::build_database().await.unwrap();
+            state::set_key(&rexie, constants::TOKEN_KEY, &token)
+                .await
+                .unwrap();
         }
         Ok(WorkerMessage::Logout { redirect_to }) => {
             info!("Logout {{ redirect_to: {:?} }}", redirect_to);
@@ -55,6 +61,11 @@ pub fn on_message(event: web_sys::ExtendableMessageEvent) {
         }
         Ok(WorkerMessage::PostRegister) => {
             debug!("PostRegister");
+
+            let rexie = state::build_database().await.unwrap();
+            let token = state::get_key(&rexie, constants::TOKEN_KEY).await.unwrap();
+
+            info!("token: {:?}", token);
         }
         Err(e) => {
             info!("error: {:?}", e);
