@@ -3,6 +3,7 @@ use js_sys::Promise;
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
+use wasm_bindgen_futures::JsFuture;
 use web_sys::{console, ServiceWorkerGlobalScope};
 
 mod constants;
@@ -54,6 +55,15 @@ pub async fn on_message(event: web_sys::ExtendableMessageEvent) {
             state::set_key(&rexie, constants::TOKEN_KEY, &token)
                 .await
                 .unwrap();
+
+            // redirect to the home page
+            let client = event
+                .source()
+                .unwrap()
+                .unchecked_into::<web_sys::WindowClient>();
+
+            let redirect = client.navigate(&redirect_to).unwrap();
+            JsFuture::from(redirect).await.unwrap();
         }
         Ok(WorkerMessage::Logout { redirect_to }) => {
             info!("Logout {{ redirect_to: {:?} }}", redirect_to);
