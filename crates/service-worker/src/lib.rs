@@ -67,7 +67,18 @@ pub async fn on_message(event: web_sys::ExtendableMessageEvent) {
         }
         Ok(WorkerMessage::Logout { redirect_to }) => {
             info!("Logout {{ redirect_to: {:?} }}", redirect_to);
-            // TODO: remove token from storage
+            let rexie = state::build_database().await.unwrap();
+            state::remove_key(&rexie, constants::TOKEN_KEY)
+                .await
+                .unwrap();
+
+            let client = event
+                .source()
+                .unwrap()
+                .unchecked_into::<web_sys::WindowClient>();
+
+            let redirect = client.navigate(&redirect_to).unwrap();
+            JsFuture::from(redirect).await.unwrap();
         }
         Ok(WorkerMessage::PostRegister) => {
             debug!("PostRegister");

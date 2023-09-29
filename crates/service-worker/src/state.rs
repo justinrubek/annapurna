@@ -72,3 +72,15 @@ pub(crate) async fn get_key(rexie: &Rexie, key: &str) -> Result<Option<String>> 
     let result = result.as_string().expect("value is not a string");
     Ok(Some(result))
 }
+
+/// Removes a value from the key-value store.
+pub(crate) async fn remove_key(rexie: &Rexie, key: &str) -> Result<()> {
+    let transaction =
+        rexie.transaction(&[constants::KEY_VALUE_STORE], TransactionMode::ReadWrite)?;
+
+    let store = transaction.store(constants::KEY_VALUE_STORE)?;
+    store.delete(&key.into()).await?;
+    transaction.done().await?;
+
+    Ok(())
+}
