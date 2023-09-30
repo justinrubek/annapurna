@@ -1,5 +1,4 @@
 use crate::{constants, error::Result};
-use log::debug;
 use rexie::*;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::JsValue;
@@ -44,10 +43,9 @@ pub(crate) async fn set_key(rexie: &Rexie, key: &str, value: &str) -> Result<()>
     let item = serde_wasm_bindgen::to_value(value)?;
     let key = JsValue::from_str(key);
 
-    let result = store.put(&item, Some(&key)).await?;
+    store.put(&item, Some(&key)).await?;
 
     transaction.done().await?;
-    debug!("set_key result: {:?}", result);
 
     Ok(())
 }
@@ -62,8 +60,6 @@ pub(crate) async fn get_key(rexie: &Rexie, key: &str) -> Result<Option<String>> 
     let result = store.get(&key.into()).await?;
 
     transaction.done().await?;
-
-    debug!("get_key result: {:?}", result);
 
     if result.is_undefined() {
         return Ok(None);
