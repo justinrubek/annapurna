@@ -100,15 +100,8 @@ pub async fn on_fetch(event: web_sys::FetchEvent) -> std::result::Result<Promise
 
     let request = modify_request(&global, &event).await?;
 
-    let response = fetch_with_request(&request);
+    let response = global.fetch_with_request(&request);
     Ok(response)
-}
-
-/// Bindings for the `fetch` function which is available globally in the service worker context
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_name = fetch)]
-    fn fetch_with_request(request: &web_sys::Request) -> Promise;
 }
 
 /// Performs the logic for determining whether to intercept a request and what to do with it.

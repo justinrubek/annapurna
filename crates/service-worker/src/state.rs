@@ -1,6 +1,5 @@
 use crate::{constants, error::Result};
 use rexie::*;
-use serde::{Deserialize, Serialize};
 use wasm_bindgen::JsValue;
 
 pub(crate) async fn build_database() -> Result<Rexie> {
@@ -13,24 +12,6 @@ pub(crate) async fn build_database() -> Result<Rexie> {
         .await?;
 
     Ok(rexie)
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct KeyValue {
-    pub key: String,
-    pub value: String,
-}
-
-impl From<KeyValue> for JsValue {
-    fn from(kv: KeyValue) -> Self {
-        serde_wasm_bindgen::to_value(&kv).unwrap()
-    }
-}
-
-impl From<JsValue> for KeyValue {
-    fn from(value: JsValue) -> Self {
-        serde_wasm_bindgen::from_value(value).unwrap()
-    }
 }
 
 /// Assigns a value in the key-value store.
