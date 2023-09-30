@@ -1,14 +1,16 @@
+use crate::token::fetch_with_token;
 use gloo_utils::format::JsValueSerdeExt;
 use js_sys::Promise;
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
-use web_sys::{console, ServiceWorkerGlobalScope};
+use web_sys::{console, ServiceWorkerGlobalScope, Url};
 
 mod constants;
 pub mod error;
 mod state;
+mod token;
 
 /// Called when the wasm module is instantiated
 #[wasm_bindgen(start)]
@@ -82,11 +84,6 @@ pub async fn on_message(event: web_sys::ExtendableMessageEvent) {
         }
         Ok(WorkerMessage::PostRegister) => {
             debug!("PostRegister");
-
-            let rexie = state::build_database().await.unwrap();
-            let token = state::get_key(&rexie, constants::TOKEN_KEY).await.unwrap();
-
-            info!("token: {:?}", token);
         }
         Err(e) => {
             info!("error: {:?}", e);
@@ -94,23 +91,55 @@ pub async fn on_message(event: web_sys::ExtendableMessageEvent) {
     }
 }
 
+/// Called by the service worker's `fetch` event.
+/// Intercepts and potentially modifies fetch requests that are made by the client
+#[wasm_bindgen]
+pub async fn on_fetch(event: web_sys::FetchEvent) -> std::result::Result<Promise, JsValue> {
+    let global = js_sys::global();
+    let global = global.unchecked_into::<ServiceWorkerGlobalScope>();
+
+    let request = modify_request(&global, &event).await?;
+
+    let response = fetch_with_request(&request);
+    Ok(response)
+}
+
+/// Bindings for the `fetch` function which is available globally in the service worker context
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_name = fetch)]
     fn fetch_with_request(request: &web_sys::Request) -> Promise;
 }
 
-/// Called by the service worker's `fetch` event.
-/// Intercepts and potentially modifies fetch requests that are made by the client
-#[wasm_bindgen]
-pub async fn on_fetch(event: web_sys::FetchEvent) -> std::result::Result<Promise, JsValue> {
+/// Performs the logic for determining whether to intercept a request and what to do with it.
+pub async fn modify_request(
+    scope: &ServiceWorkerGlobalScope,
+    event: &web_sys::FetchEvent,
+) -> Result<web_sys::Request, JsValue> {
     let request = event.request();
-
     let url = request.url();
-    info!("on_fetch: {:?}", url);
+    let url = Url::new(&url).unwrap();
+    let hostname = url.hostname();
 
-    // let window = web_sys::window().expect("no global `window` exists");
+    let location = scope.location();
 
-    let response = fetch_with_request(&request);
-    Ok(response)
+    let url_is_this_host = location
+        .hostname()
+        .eq_ignore_ascii_case(&hostname.to_string());
+
+    if url_is_this_host {
+        debug!("url is this host");
+    }
+
+    // TODO: better logic for determining whether to intercept the request
+    let is_api_request = url.pathname().starts_with("/api/");
+    let is_navigation = request.mode() == web_sys::RequestMode::Navigate;
+
+    if is_api_request && !is_navigation {
+        info!("adding token to request");
+        fetch_with_token(event).await
+    } else {
+        info!("not adding token to request");
+        Ok(request)
+    }
 }
