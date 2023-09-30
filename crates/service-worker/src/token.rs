@@ -1,5 +1,7 @@
 use crate::{constants, state};
+use base64::Engine as _;
 use log::{debug, info};
+use serde::{Deserialize, Serialize};
 use wasm_bindgen::JsValue;
 
 /// Creates a new request that has the token attached to it on the `Authorization` header.
@@ -26,6 +28,11 @@ pub(crate) async fn fetch_with_token(
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+struct TokenPayload {
+    exp: u64,
+}
+
 /// Attempts to retrieve the token from the database.
 /// If the token is not found then an attempt is made to refresh the token.
 /// If the token is successfully refreshed then the new token is returned.
@@ -38,6 +45,35 @@ async fn retrieve_token(event: &web_sys::FetchEvent) -> Result<Option<String>, J
         let token = refresh_token(event).await?;
 
         if token.is_none() {
+            return Ok(None);
+        }
+    }
+
+    // Ensure that the token isn't expired.
+    if let Some(token) = &token {
+        // Take the second parts of the token, decode it, and look at the `exp` field.
+        let token_part: &str = token.split('.').nth(1).unwrap();
+        let engine = base64::engine::general_purpose::URL_SAFE_NO_PAD;
+        let token_part = engine.decode(token_part).unwrap();
+        let token_part: TokenPayload = serde_json::from_slice(&token_part).unwrap();
+        info!("token_part: {:?}", token_part);
+
+        // Get the current time in seconds
+        let now = js_sys::Math::floor(js_sys::Date::now() / 1000.0) as u64;
+
+        if token_part.exp < now {
+            // Attempt to refresh the token
+            let token = refresh_token(event).await?;
+
+            if token.is_none() {
+                return Ok(None);
+            }
+        }
+    }
+
+    // Ensure that the token is not the unauthorized token
+    if let Some(token) = &token {
+        if token == constants::UNAUTHORIZED_TOKEN {
             return Ok(None);
         }
     }
