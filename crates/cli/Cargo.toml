@@ -19,7 +19,7 @@ features = []
 
 [dependencies.annapurna-http]
 path = "../http"
-features = []
+features = ["ssr"]
 
 [dependencies.annapurna-logic]
 path = "../logic"
