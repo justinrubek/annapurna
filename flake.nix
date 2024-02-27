@@ -28,7 +28,6 @@
 
   outputs = inputs @ {
     self,
-    flake-utils,
     flake-parts,
     ...
   }:
