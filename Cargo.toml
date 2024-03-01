@@ -12,20 +12,25 @@ version = "0.2.0"
 [workspace.dependencies]
 anyhow = "1.0.68"
 base64 = "0.21.4"
-axum = "0.6.12"
-hyper = "0.14"
+axum = "0.7"
+axum-extra = "0.9"
 js-sys = "0.3.61"
+lockpad-auth = "0.3.0"
 log = "0.4.20"
 notify = "5.1.0"
 ron = "0.8.0"
 serde_json = "1.0.87"
 serde-wasm-bindgen = "0.4"
 thiserror = "1.0.38"
-tower-http = "0.4.0"
+tower-http = "0.5.0"
 tracing = "0.1.37"
 wasm-bindgen = "=0.2.87"
 wasm-bindgen-futures = "0.4.34"
 wasm-logger = "0.2.0"
+
+[workspace.dependencies.hyper]
+version = "1.0"
+features = ["client"]
 
 [workspace.dependencies.reqwest]
 version = "0.11.20"

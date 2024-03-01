@@ -3,31 +3,29 @@ use annapurna_data::{
     Facts,
 };
 use axum::{
-    body::{self},
     extract::{FromRef, State},
     middleware,
     response::{Html, IntoResponse, Redirect},
     routing::{get, get_service, post},
-    Form, Router, TypedHeader,
+    Form, Router,
 };
-use hyper::{client::HttpConnector, Body};
+use axum_extra::TypedHeader;
 use lockpad_auth::PublicKey;
 use std::{
     collections::{HashMap, HashSet},
     net::SocketAddr,
     path::PathBuf,
 };
+use tokio::net::TcpListener;
 use tower::ServiceBuilder;
-use tower_http::{services::ServeDir, ServiceBuilderExt};
+use tower_http::services::ServeDir;
 use tracing::info;
 
 pub mod error;
 mod serve;
 
 use error::Result;
-use serve::{handle_error, inject_variables_into_html, InjectorState};
-
-type Client = hyper::client::Client<HttpConnector, Body>;
+use serve::{inject_variables_into_html, InjectorState};
 
 #[derive(Clone)]
 pub struct Server {
@@ -61,18 +59,11 @@ impl FromRef<ServerState> for PublicKey {
 #[derive(Clone)]
 pub struct ProxyState {
     pub server_state: ServerState,
-    pub client: Client,
 }
 
 impl FromRef<ProxyState> for ServerState {
     fn from_ref(state: &ProxyState) -> Self {
         state.server_state.clone()
-    }
-}
-
-impl FromRef<ProxyState> for Client {
-    fn from_ref(state: &ProxyState) -> Self {
-        state.client.clone()
     }
 }
 
@@ -126,11 +117,9 @@ impl Server {
         // if the file contains html, it will be edited to include runtime environment variables
         // these may be loaded by the client-side javascript
         let serve_dir = ServeDir::new(self.static_path);
-        let serve_service = get_service(serve_dir).handle_error(handle_error).layer(
-            ServiceBuilder::new().map_request_body(body::boxed).layer(
-                middleware::from_fn_with_state(frontend_state, inject_variables_into_html),
-            ),
-        );
+        let serve_service = get_service(serve_dir).layer(ServiceBuilder::new().layer(
+            middleware::from_fn_with_state(frontend_state, inject_variables_into_html),
+        ));
 
         let app = Router::new()
             .nest("/api", api_routes())
@@ -139,10 +128,8 @@ impl Server {
             .layer(cors);
 
         tracing::debug!("listening on {}", &self.addr);
-        axum::Server::bind(&self.addr)
-            .serve(app.into_make_service())
-            .await
-            .unwrap();
+        let listener = TcpListener::bind(&self.addr).await?;
+        axum::serve(listener, app).await?;
 
         Ok(())
     }
@@ -171,10 +158,8 @@ impl Server {
             .with_state(server_state);
 
         tracing::debug!("listening on {}", &self.addr);
-        axum::Server::bind(&self.addr)
-            .serve(app.into_make_service())
-            .await
-            .unwrap();
+        let listener = TcpListener::bind(&self.addr).await?;
+        axum::serve(listener, app).await?;
 
         Ok(())
     }
@@ -268,7 +253,7 @@ async fn root() -> Html<String> {
 }
 
 async fn login_redirect(
-    TypedHeader(_host): TypedHeader<axum::headers::Host>,
+    TypedHeader(_host): TypedHeader<axum_extra::headers::Host>,
     State(ServerState {
         auth_url,
         auth_app_id,

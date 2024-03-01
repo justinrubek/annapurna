@@ -34,6 +34,11 @@ fn app(cx: Scope) -> Element {
     render! {
         Router::<Route> { }
 
+        button {
+            onclick: |_| resolve_recipes(app_state.clone()),
+            "Refresh"
+        }
+
         Datalist {
             id: "annapurna-ingredients",
             items: app_state.read().ingredients.iter().map(|i| i.to_string()).collect(),

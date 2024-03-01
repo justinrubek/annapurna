@@ -5,18 +5,20 @@ edition.workspace = true
 
 [dependencies]
 annapurna-data = { path = "../data" }
-axum = { workspace = true }
+axum = { workspace = true, features = ["macros"] }
+axum-extra = { workspace = true, features = ["typed-header"] }
 futures-util = "0.3.28"
 html_editor = "0.5.2"
-http-body = "0.4.5"
+http-body = "1.0"
+http-body-util = "0.1.0"
 hyper = { workspace = true }
-lockpad-auth = "0.2.0"
+lockpad-auth = { workspace = true }
 serde = { workspace = true }
 serde_json = "1.0.87"
 serde_urlencoded = "0.7.1"
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tower = { version = "0.4" }
-tower-http = { version = "0.3.0", features = ["fs", "cors", "map-response-body", "map-request-body", "util"] }
+tower-http = { workspace = true, features = ["fs", "cors", "map-response-body", "map-request-body", "util"] }
 tower-layer = "0.3.2"
 tracing = { workspace = true }
