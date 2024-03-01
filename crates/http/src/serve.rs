@@ -1,8 +1,7 @@
 use crate::error::{Error, Result};
 use axum::{
-    body::{self, BoxBody, HttpBody},
-    extract::State,
-    http::{Request, StatusCode},
+    body::{Body, HttpBody},
+    extract::{Request, State},
     middleware::Next,
     response::{IntoResponse, Response},
 };
@@ -10,6 +9,7 @@ use html_editor::{
     operation::{Editable, Htmlifiable, Selector},
     Node,
 };
+use http_body_util::BodyExt;
 use std::collections::HashMap;
 
 /// The state of the injector middleware.
@@ -26,8 +26,8 @@ pub(crate) struct InjectorState {
 /// The client-side javascript can then read the variables from this div using the `data-` prefixed attributes.
 pub(crate) async fn inject_variables_into_html(
     State(state): State<InjectorState>,
-    request: Request<BoxBody>,
-    next: Next<BoxBody>,
+    request: Request,
+    next: Next,
 ) -> Result<impl IntoResponse> {
     let response = next.run(request).await;
     let (mut parts, body) = response.into_parts();
@@ -41,7 +41,7 @@ pub(crate) async fn inject_variables_into_html(
     let body = match is_html {
         true => {
             // Extract the body and parse it into a dom
-            let bytes = hyper::body::to_bytes(body).await?;
+            let bytes = body.collect().await?.to_bytes();
             let html = String::from_utf8(bytes.to_vec())?;
             let mut dom = html_editor::parse(&html).map_err(Error::InvalidHtml)?;
 
@@ -63,7 +63,7 @@ pub(crate) async fn inject_variables_into_html(
             // Create a new response body
             let new_html = dom.html();
             let bytes = new_html.as_bytes().to_owned();
-            let body = body::boxed(axum::body::Full::from(bytes));
+            let body = Body::from(bytes);
 
             // update the content length header to match the new body
             let content_length = body.size_hint().exact().unwrap();
@@ -79,8 +79,4 @@ pub(crate) async fn inject_variables_into_html(
 
     let response = Response::from_parts(parts, body);
     Ok(response)
-}
-
-pub(crate) async fn handle_error(_err: std::io::Error) -> impl IntoResponse {
-    (StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error")
 }
