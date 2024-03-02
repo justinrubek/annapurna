@@ -24,6 +24,10 @@
     wasm-bindgen-service-worker = {
       url = "github:justinrubek/wasm-bindgen-service-worker";
     };
+    nix2container = {
+      url = "github:nlewo/nix2container";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {
@@ -46,6 +50,8 @@
         ./flake-parts/formatting.nix
         ./flake-parts/pre-commit.nix
         inputs.pre-commit-hooks.flakeModule
+
+        ./flake-parts/containers.nix
       ];
     };
 }
