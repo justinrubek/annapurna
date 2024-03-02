@@ -79,6 +79,7 @@ where
         .route("/submit", post(dummy_form))
         .route("/recipes", get(get_recipes))
         .route("/ingredients", get(get_ingredients))
+        .route("/health", get(health))
 }
 
 impl Server {
@@ -300,4 +301,8 @@ async fn get_ingredients(
         .collect();
 
     axum::Json(ingredients)
+}
+
+pub async fn health() -> &'static str {
+    "OK"
 }
