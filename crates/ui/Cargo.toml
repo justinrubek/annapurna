@@ -12,10 +12,10 @@ crate-type = ["cdylib"]
 [dependencies]
 annapurna-data = { path = "../data" }
 annapurna-logic = { path = "../logic" }
-dioxus = "0.4.0"
-dioxus-html = "0.4.0"
-dioxus-router = "0.4.1"
-dioxus-web = "0.4.0"
+dioxus = "0.4"
+dioxus-html = "0.4"
+dioxus-router = "0.4"
+dioxus-web = "0.4"
 getrandom = { version = "0.2.8", features = ["js"] }
 js-sys = { workspace = true }
 reqwest = { workspace = true }
