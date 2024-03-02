@@ -8,12 +8,6 @@
     ...
   }: let
     nix2container = inputs'.nix2container.packages.nix2container;
-
-    facts = pkgs.runCommand "facts" {} ''
-      mkdir -p $out
-
-      cp -r ${../facts} $out/facts
-    '';
   in rec {
     packages."annapurna/docker" = nix2container.buildImage {
       name = "annapurna";
@@ -22,7 +16,7 @@
       };
       copyToRoot = pkgs.buildEnv {
         name = "root";
-        paths = [self'.packages.static-files facts pkgs.cacert];
+        paths = [self'.packages.static-files self'.packages.facts pkgs.cacert];
         pathsToLink = ["/public" "/facts" "/etc/"];
       };
     };

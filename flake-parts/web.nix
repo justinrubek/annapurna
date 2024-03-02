@@ -28,6 +28,12 @@
         cp -r ${modules.${name}}/* $out/public/${dirName}/${name}
       '') (builtins.attrNames modules);
 
+    facts = pkgs.runCommand "facts" {} ''
+      mkdir -p $out
+
+      cp -r ${../facts} $out/facts
+    '';
+
     static-files = pkgs.runCommand "static-files" {} ''
       mkdir -p $out
 
@@ -45,7 +51,7 @@
     '';
   in rec {
     packages = {
-      inherit static-files;
+      inherit static-files facts;
       serve = pkgs.writeShellApplication {
         name = "serve-annapurna";
         runtimeInputs = [pkgs.miniserve];
