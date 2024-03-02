@@ -6,9 +6,9 @@ pub struct Ingredient {
     pub name: String,
 }
 
-impl std::string::ToString for Ingredient {
-    fn to_string(&self) -> String {
-        self.name.clone()
+impl std::fmt::Display for Ingredient {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.name)
     }
 }
 
@@ -60,9 +60,9 @@ impl Recipe {
     }
 }
 
-impl std::string::ToString for Recipe {
-    fn to_string(&self) -> String {
-        self.name.clone()
+impl std::fmt::Display for Recipe {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.name)
     }
 }
 
