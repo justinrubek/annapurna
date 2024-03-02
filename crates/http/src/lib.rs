@@ -254,15 +254,22 @@ async fn root() -> Html<String> {
 }
 
 async fn login_redirect(
-    TypedHeader(_host): TypedHeader<axum_extra::headers::Host>,
+    TypedHeader(host): TypedHeader<axum_extra::headers::Host>,
     State(ServerState {
         auth_url,
         auth_app_id,
         ..
     }): State<ServerState>,
 ) -> impl IntoResponse {
+    let protocol = if host.to_string().starts_with("localhost") {
+        "http"
+    } else {
+        "https"
+    };
+    let callback_url = format!("{protocol}://{host}/login-callback",);
+
     let mut query_params = HashMap::new();
-    query_params.insert("redirect_uri", "http://localhost:3000/login-callback");
+    query_params.insert("redirect_uri", &callback_url);
     query_params.insert("client_id", &auth_app_id);
     let query_string = serde_urlencoded::to_string(&query_params).unwrap();
 
