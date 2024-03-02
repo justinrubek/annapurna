@@ -1,0 +1,51 @@
+name: build and push container to registry
+on:
+  workflow_dispatch:
+    inputs:
+      image_name:
+        type: string
+        description: the package to use for `nix build`
+      repository_name:
+        type: string
+        description: the container registry name
+
+jobs:
+  publish-container:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install nix
+        uses: DeterminateSystems/nix-installer-action@v2
+        with:
+          logger: pretty
+          log-directives: nix_installer=trace
+          backtrace: full
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+          extra-conf: |
+            extra-substituters = https://cache.garnix.io
+            extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=
+            system-features = kvm
+
+      - name: build image
+        env:
+          PACKAGE_NAME: ${{ inputs.image_name }}
+        run: nix build .#${PACKAGE_NAME}
+
+      - name: login to registry
+        env:
+          USERNAME: ${{ github.actor }}
+          PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: echo ${PASSWORD} | nix develop -c skopeo login ghcr.io -u ${USERNAME} --password-stdin
+
+      - name: push to registry
+        env:
+          REPO_OWNER: justinrubek
+          REPO_NAME: ${{ inputs.repository_name }}
+          VERSION: ${{ github.sha }}
+          PACKAGE_NAME: ${{ inputs.image_name }}
+        run: nix run .#${PACKAGE_NAME}.copyTo docker://ghcr.io/${REPO_OWNER}/${REPO_NAME}:${VERSION}
