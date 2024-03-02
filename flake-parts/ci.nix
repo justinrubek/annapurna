@@ -10,6 +10,8 @@
     ciPackages = [
       self'.packages.cocogitto
       self'.packages.bomper
+
+      pkgs.skopeo
     ];
 
     packages = {
