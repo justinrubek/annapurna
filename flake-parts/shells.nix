@@ -8,7 +8,7 @@
     lib,
     ...
   }: let
-    inherit (self'.packages) rust-toolchain;
+    inherit (self'.packages) rust-toolchain postgresql;
     inherit (self'.legacyPackages) cargoExtraPackages ciPackages;
 
     devTools = [
@@ -21,6 +21,8 @@
       pkgs.wasm-bindgen-cli
       # formatting
       self'.packages.treefmt
+
+      postgresql
     ];
   in {
     devShells = {
