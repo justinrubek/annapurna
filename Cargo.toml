@@ -28,6 +28,10 @@ wasm-bindgen = "=0.2.91"
 wasm-bindgen-futures = "0.4.34"
 wasm-logger = "0.2.0"
 
+[workspace.dependencies.chrono]
+version = "0.4.34"
+features = ["serde"]
+
 [workspace.dependencies.hyper]
 version = "1.0"
 features = ["client"]
@@ -38,8 +42,8 @@ features = ["rustls-tls", "json"]
 default-features = false
 
 [workspace.dependencies.sqlx]
-version = "0.6.3"
-features = ["runtime-tokio-rustls", "macros", "postgres"]
+version = "0.7.3"
+features = ["runtime-tokio-rustls", "macros", "postgres", "chrono", "uuid"]
 
 [workspace.dependencies.serde]
 version = "1"

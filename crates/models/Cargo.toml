@@ -1,0 +1,14 @@
+[package]
+name = "annapurna-models"
+version = { workspace = true }
+edition = { workspace = true }
+
+[dependencies]
+chrono = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+sqlx-ulid = { path = "../ulid" }
+sqlx = { workspace = true }
+serde_json.workspace = true

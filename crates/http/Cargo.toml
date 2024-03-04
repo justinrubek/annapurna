@@ -5,6 +5,8 @@ edition.workspace = true
 
 [dependencies]
 annapurna-data = { path = "../data" }
+annapurna-models = { path = "../models" }
+sqlx-ulid = { path = "../ulid" }
 axum = { workspace = true, features = ["macros"] }
 axum-extra = { workspace = true, features = ["typed-header"] }
 futures-util = "0.3.28"

@@ -1,0 +1,10 @@
+[package]
+name = "sqlx-ulid"
+version = { workspace = true }
+edition = { workspace = true }
+
+[dependencies]
+rusty_ulid = { version = "2.0.0", features = ["chrono", "rand", "serde"], default-features = false }
+sqlx = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
