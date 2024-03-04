@@ -29,6 +29,8 @@ use serve::{inject_variables_into_html, InjectorState};
 
 #[derive(Clone)]
 pub struct Server {
+    pg_pool: sqlx::pool::Pool<sqlx::Postgres>,
+
     addr: SocketAddr,
     auth_url: String,
     auth_app_id: String,
@@ -41,6 +43,8 @@ pub struct Server {
 
 #[derive(Clone)]
 pub struct ServerState {
+    pub pg_pool: sqlx::pool::Pool<sqlx::Postgres>,
+
     pub public_key: PublicKey,
     pub auth_url: String,
     pub auth_app_id: String,
@@ -100,6 +104,7 @@ impl Server {
 
         let public_key = self.public_keys[0].clone();
         let state = ServerState {
+            pg_pool: self.pg_pool,
             public_key,
             auth_url: self.auth_url.clone(),
             auth_app_id: self.auth_app_id.clone(),
@@ -146,6 +151,7 @@ impl Server {
         let public_key = self.public_keys[0].clone();
         let facts = self.facts.clone();
         let server_state = ServerState {
+            pg_pool: self.pg_pool,
             public_key,
             auth_url,
             auth_app_id,
@@ -170,6 +176,7 @@ pub struct Builder {
     addr: Option<SocketAddr>,
     auth_url: Option<String>,
     auth_app_id: Option<String>,
+    pg_pool: Option<sqlx::pool::Pool<sqlx::Postgres>>,
     public_keys: Option<Vec<PublicKey>>,
     static_path: Option<PathBuf>,
     facts: Option<Facts>,
@@ -181,6 +188,7 @@ impl Builder {
             addr: None,
             auth_url: None,
             auth_app_id: None,
+            pg_pool: None,
             public_keys: None,
             static_path: None,
             facts: None,
@@ -199,6 +207,11 @@ impl Builder {
 
     pub fn auth_app_id(mut self, auth_app_id: String) -> Self {
         self.auth_app_id = Some(auth_app_id);
+        self
+    }
+
+    pub fn pg_pool(mut self, pg_pool: sqlx::pool::Pool<sqlx::Postgres>) -> Self {
+        self.pg_pool = Some(pg_pool);
         self
     }
 
@@ -221,6 +234,7 @@ impl Builder {
         let addr = self.addr.ok_or(error::Error::ServerBuilder)?;
         let auth_url = self.auth_url.ok_or(error::Error::ServerBuilder)?;
         let auth_app_id = self.auth_app_id.ok_or(error::Error::ServerBuilder)?;
+        let pg_pool = self.pg_pool.ok_or(error::Error::ServerBuilder)?;
         let public_keys = self.public_keys.ok_or(error::Error::ServerBuilder)?;
         let static_path = self.static_path.ok_or(error::Error::ServerBuilder)?;
         let facts = self.facts.ok_or(error::Error::ServerBuilder)?;
@@ -229,6 +243,7 @@ impl Builder {
             addr,
             auth_url,
             auth_app_id,
+            pg_pool,
             public_keys,
             static_path,
             facts,
@@ -242,6 +257,7 @@ impl Default for Builder {
             addr: Some(SocketAddr::from(([0, 0, 0, 0], 3000))),
             auth_url: None,
             auth_app_id: None,
+            pg_pool: None,
             public_keys: None,
             static_path: None,
             facts: None,

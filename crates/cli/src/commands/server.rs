@@ -28,6 +28,11 @@ impl ServerCommand {
     pub(crate) async fn run(&self) -> Result<(), Box<dyn std::error::Error>> {
         let config = Config::load()?;
 
+        let pg_pool = sqlx::postgres::PgPoolOptions::new()
+            .max_connections(5)
+            .connect(&config.postgres_url)
+            .await?;
+
         // Load auth keys
         let auth_url = config.auth_url;
         let client = reqwest::Client::new();
@@ -44,6 +49,7 @@ impl ServerCommand {
 
         let server = annapurna_http::Server::builder()
             .addr(self.addr)
+            .pg_pool(pg_pool)
             .public_keys(key_set.clone())
             .static_path(config.static_path.clone())
             .auth_url(auth_url.clone())
