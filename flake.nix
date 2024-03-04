@@ -57,6 +57,7 @@
         ./flake-parts/containers.nix
 
         ./flake-parts/postgres.nix
+        ./flake-parts/sqlx.nix
 
         inputs.process-compose.flakeModule
         ./flake-parts/services.nix
