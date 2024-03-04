@@ -22,6 +22,7 @@ use tower_http::services::ServeDir;
 use tracing::info;
 
 pub mod error;
+mod handlers;
 mod serve;
 
 use error::Result;
@@ -79,6 +80,10 @@ where
 {
     Router::new()
         .route("/", get(root))
+        .route(
+            "/inventory",
+            get(handlers::inventory::list_inventory).post(handlers::inventory::create_inventory),
+        )
         .route("/login", get(login_redirect))
         .route("/submit", post(dummy_form))
         .route("/recipes", get(get_recipes))

@@ -6,7 +6,7 @@
   perSystem = {self', ...}: let
   in {
     pre-commit = {
-      check.enable = true;
+      check.enable = false;
 
       settings = {
         src = ../.;

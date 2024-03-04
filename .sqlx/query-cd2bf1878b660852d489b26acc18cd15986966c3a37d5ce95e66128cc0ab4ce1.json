@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                inventory_id::uuid as \"inventory_id: Ulid\",\n                ingredient_type,\n                quantity,\n                created_at,\n                expiration_date\n            FROM \n                inventory\n            WHERE \n                inventory_id::uuid = $1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "inventory_id: Ulid",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "ingredient_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "quantity",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "expiration_date",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "cd2bf1878b660852d489b26acc18cd15986966c3a37d5ce95e66128cc0ab4ce1"
+}

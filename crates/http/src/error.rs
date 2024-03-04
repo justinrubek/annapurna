@@ -11,6 +11,9 @@ pub enum Error {
     #[error(transparent)]
     Io(#[from] std::io::Error),
 
+    #[error(transparent)]
+    AnnupurnaModels(#[from] annapurna_models::error::Error),
+
     #[error("Failed to build server struct")]
     ServerBuilder,
     #[error("Invalid html file")]
