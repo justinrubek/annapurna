@@ -13,6 +13,8 @@ pub struct Config {
     pub static_path: PathBuf,
     /// Directory to load facts from
     pub facts_path: PathBuf,
+    /// URL to postgres database
+    pub postgres_url: String,
 }
 
 impl Config {
