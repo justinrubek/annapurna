@@ -28,6 +28,9 @@
       url = "github:nlewo/nix2container";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    process-compose.url = "github:Platonic-Systems/process-compose-flake";
+    services-flake.url = "github:justinrubek/services-flake";
+    nix-postgres.url = "github:justinrubek/nix-postgres";
   };
 
   outputs = inputs @ {
@@ -52,6 +55,11 @@
         inputs.pre-commit-hooks.flakeModule
 
         ./flake-parts/containers.nix
+
+        ./flake-parts/postgres.nix
+
+        inputs.process-compose.flakeModule
+        ./flake-parts/services.nix
       ];
     };
 }
