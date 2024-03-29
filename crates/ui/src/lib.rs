@@ -22,26 +22,25 @@ fn init_wasm() -> Result<(), JsValue> {
 #[wasm_bindgen]
 pub fn launch_app() {
     wasm_logger::init(wasm_logger::Config::default());
-    dioxus_web::launch(app);
+    dioxus::launch(app);
 }
 
-fn app(cx: Scope) -> Element {
-    use_shared_state_provider(cx, AppState::default);
-    let app_state = use_shared_state::<AppState>(cx).unwrap();
-    use_future(cx, (), |_| resolve_recipes(app_state.clone()));
-    use_future(cx, (), |_| resolve_ingredients(app_state.clone()));
+fn app() -> Element {
+    let app_state = use_context_provider(|| Signal::new(AppState::default()));
+    use_future(move || resolve_recipes(app_state));
+    use_future(move || resolve_ingredients(app_state));
 
-    render! {
+    rsx! {
         Router::<Route> { }
 
         button {
-            onclick: |_| resolve_recipes(app_state.clone()),
+            onclick: move |_| resolve_recipes(app_state),
             "Refresh"
         }
 
         Datalist {
             id: "annapurna-ingredients",
-            items: app_state.read().ingredients.iter().map(|i| i.to_string()).collect(),
+            items: app_state().ingredients.iter().map(|i| i.to_string()).collect(),
         }
     }
 }

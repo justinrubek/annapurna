@@ -1,6 +1,6 @@
 use crate::state::AppState;
 use annapurna_data::types::{Ingredient, Recipe};
-use dioxus::hooks::UseSharedState;
+use dioxus::{prelude::Writable, signals::Signal};
 
 pub const BASE_API_URL: &str = "/api";
 pub const RECIPE_API_URL: &str = "/recipes";
@@ -22,7 +22,7 @@ pub async fn get_recipes() -> Result<Vec<Recipe>, reqwest::Error> {
 }
 
 /// Retrieves recipes from the API and updates the app state.
-pub async fn resolve_recipes(app_state: UseSharedState<AppState>) {
+pub async fn resolve_recipes(mut app_state: Signal<AppState>) {
     let recipes = get_recipes().await.unwrap();
     app_state.write().recipes = recipes;
 }
@@ -34,7 +34,7 @@ pub async fn get_ingredients() -> Result<Vec<Ingredient>, reqwest::Error> {
 }
 
 /// Retrieves ingredients from the API and updates the app state.
-pub async fn resolve_ingredients(app_state: UseSharedState<AppState>) {
+pub async fn resolve_ingredients(mut app_state: Signal<AppState>) {
     let ingredients = get_ingredients().await.unwrap();
     app_state.write().ingredients = ingredients;
 }

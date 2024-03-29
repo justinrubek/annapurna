@@ -28,7 +28,7 @@ pub(crate) enum Route {
 }
 
 #[allow(non_snake_case)]
-pub(crate) fn Nav(cx: Scope) -> Element {
+pub(crate) fn Nav() -> Element {
     let style_contents = r#"
         .navlink {
             margin: 0 1rem;
@@ -50,9 +50,9 @@ pub(crate) fn Nav(cx: Scope) -> Element {
             padding: 1rem;
         }
     "#;
-    render! {
+    rsx! {
         style {
-            style_contents
+            {style_contents}
         }
         nav {
             class: "nav",
@@ -99,8 +99,8 @@ pub(crate) fn Nav(cx: Scope) -> Element {
 }
 
 #[allow(non_snake_case)]
-pub(crate) fn Index(cx: Scope) -> Element {
-    cx.render(rsx! {
+pub(crate) fn Index() -> Element {
+    rsx! {
         p {
             r#"Annapurna is a cooking and lifestyle utility.
             Using it will allow you to improve your diet by making nutritional choices easier.
@@ -108,52 +108,51 @@ pub(crate) fn Index(cx: Scope) -> Element {
             food you waste.
             "#,
         }
-    })
+    }
 }
 
 #[allow(non_snake_case)]
-pub(crate) fn AppIndex(cx: Scope) -> Element {
-    cx.render(rsx! {
+pub(crate) fn AppIndex() -> Element {
+    rsx! {
         div { "app index" }
-    })
+    }
 }
 
 #[allow(non_snake_case)]
-pub(crate) fn AppRecipes(cx: Scope) -> Element {
-    let app_state = use_shared_state::<AppState>(cx).unwrap();
+pub(crate) fn AppRecipes() -> Element {
+    let mut app_state = use_context::<Signal<AppState>>();
+    let mut creating_recipe = use_signal(|| false);
 
-    let creating_recipe = use_state(cx, || false);
-
-    cx.render(rsx! {
+    rsx! {
         div {
             h1 { "Recipes" }
 
             button {
-                onclick: |_| creating_recipe.set(true),
+                onclick: move |_| creating_recipe.set(true),
                 "add recipe"
             }
             button {
-                onclick: |_| {
+                onclick: move |_| {
                     let filename = "recipes.ron";
-                    let text = ron::ser::to_string_pretty(&app_state.read().recipes, Default::default()).unwrap();
+                    let text = ron::ser::to_string_pretty(&app_state().recipes, Default::default()).unwrap();
                     util::download_string(filename, &text).expect("failed to download");
                 },
                 "export recipes"
             }
 
-            if *creating_recipe.get() {
-                render! {
+            if creating_recipe() {
+                {rsx! {
                     RecipeCreate {
-                        on_create: |recipe| {
+                        on_create: move |recipe| {
                             app_state.write().add_recipe(recipe);
                             creating_recipe.set(false);
                         },
-                        on_cancel: |_| creating_recipe.set(false),
+                        on_cancel: move |_| creating_recipe.set(false),
                     }
-                }
+                }}
             }
 
-            app_state.read().recipes.iter().cloned().map(|recipe| {
+            {app_state().recipes.iter().cloned().map(move |recipe| {
                  rsx! {
                     div {
                         Recipe {
@@ -162,20 +161,20 @@ pub(crate) fn AppRecipes(cx: Scope) -> Element {
                         }
                         button {
                             onclick: move |_| {
-                                app_state.write().remove_recipe(&recipe.name);
+                                app_state().remove_recipe(&recipe.name.clone());
                             },
                             "remove"
                         }
                     }
                 }
-            })
+            })}
         }
-    })
+    }
 }
 
 #[allow(non_snake_case)]
-pub(crate) fn DebugPage(cx: Scope) -> Element {
-    cx.render(rsx! {
+pub(crate) fn DebugPage() -> Element {
+    rsx! {
         div {
             h1 { "Debug" }
             button {
@@ -187,47 +186,46 @@ pub(crate) fn DebugPage(cx: Scope) -> Element {
                 "download file"
             }
         }
-    })
+    }
 }
 
 #[allow(non_snake_case)]
-pub(crate) fn AppIngredients(cx: Scope) -> Element {
-    let app_state = use_shared_state::<AppState>(cx).unwrap();
+pub(crate) fn AppIngredients() -> Element {
+    let mut app_state = consume_context::<Signal<AppState>>();
+    let mut creating_ingredient = use_signal(|| false);
 
-    let creating_ingredient = use_state(cx, || false);
-
-    cx.render(rsx! {
+    rsx! {
         div {
             h1 { "Ingredients" }
 
             button {
-                onclick: |_| creating_ingredient.set(true),
+                onclick: move |_| creating_ingredient.set(true),
                 "add ingredient"
             }
             button {
-                onclick: |_| {
+                onclick: move |_| {
                     let filename = "ingredients.ron";
-                    let text = ron::ser::to_string_pretty(&app_state.read().ingredients, Default::default()).unwrap();
+                    let text = ron::ser::to_string_pretty(&app_state().ingredients, Default::default()).unwrap();
                     util::download_string(filename, &text).expect("failed to download");
                 },
                 "export ingredients"
             }
 
-            if *creating_ingredient.get() {
-                render! {
+            if creating_ingredient() {
+                {rsx! {
                     IngredientCreate {
-                        on_create: |ingredient| {
+                        on_create: move |ingredient| {
                             app_state.write().add_ingredient(ingredient);
                             creating_ingredient.set(false);
                         },
-                        on_cancel: |_| creating_ingredient.set(false),
+                        on_cancel: move |_| creating_ingredient.set(false),
                     }
-                }
+                }}
             }
 
-            app_state.read().ingredients.iter().cloned().map(|ingredient| rsx! {
+            {app_state().ingredients.iter().cloned().map(|ingredient| rsx! {
                 div {
-                    p { format!("name: {}", &ingredient.name) }
+                    p { {format!("name: {}", &ingredient.name)} }
                     button {
                         onclick: move |_| {
                             app_state.write().remove_ingredient(&ingredient.name);
@@ -235,18 +233,17 @@ pub(crate) fn AppIngredients(cx: Scope) -> Element {
                         "remove"
                     }
                 }
-            })
+            })}
         }
-    })
+    }
 }
 
 #[allow(non_snake_case)]
-pub(crate) fn AppInventory(cx: Scope) -> Element {
-    let app_state = use_shared_state::<AppState>(cx).unwrap();
+pub(crate) fn AppInventory() -> Element {
+    let mut app_state = consume_context::<Signal<AppState>>();
+    let mut creating_inventory = use_signal(|| false);
 
-    let creating_inventory = use_state(cx, || false);
-
-    cx.render(rsx! {
+    rsx! {
         div {
             h1 { "Inventory" }
 
@@ -255,10 +252,9 @@ pub(crate) fn AppInventory(cx: Scope) -> Element {
                     r#type: "file",
                     multiple: false,
                     onchange: move |event| {
-                        let app_state = app_state.clone();
-                        let files = event.files.clone();
+                        let files = event.files().clone();
 
-                        cx.spawn({
+                        spawn({
                             async move {
                                 if let Some(file_engine) = files {
                                     let files = file_engine.files();
@@ -280,33 +276,33 @@ pub(crate) fn AppInventory(cx: Scope) -> Element {
                 }
             }
             button {
-                onclick: |_| creating_inventory.set(true),
+                onclick: move |_| creating_inventory.set(true),
                 "add ingredient"
             }
             button {
-                onclick: |_| {
+                onclick: move |_| {
                     let filename = "inventory.ron";
-                    let text = ron::ser::to_string_pretty(&app_state.read().inventory, Default::default()).unwrap();
+                    let text = ron::ser::to_string_pretty(&app_state().inventory, Default::default()).unwrap();
                     util::download_string(filename, &text).expect("failed to download");
                 },
                 "export inventory"
             }
 
-            if *creating_inventory.get() {
-                render! {
+            if creating_inventory() {
+                {rsx! {
                     InventoryCreate {
-                        on_create: |ingredient| {
+                        on_create: move |ingredient| {
                             app_state.write().add_inventory(ingredient);
                             creating_inventory.set(false);
                         },
-                        on_cancel: |_| creating_inventory.set(false),
+                        on_cancel: move |_| creating_inventory.set(false),
                     }
-                }
+                }}
             }
 
-            app_state.read().inventory.iter().cloned().map(|ingredient| rsx! {
+            {app_state().inventory.iter().cloned().map(|ingredient| rsx! {
                 div {
-                    p { format!("name: {}", &ingredient.name) }
+                    p { {format!("name: {}", &ingredient.name)} }
                     button {
                         onclick: move |_| {
                             app_state.write().remove_inventory(&ingredient.name);
@@ -314,26 +310,22 @@ pub(crate) fn AppInventory(cx: Scope) -> Element {
                         "remove"
                     }
                 }
-            })
+            })}
         }
-    })
+    }
 }
 
 #[allow(non_snake_case)]
-pub(crate) fn AppLogicViewer(cx: Scope) -> Element {
-    let app_state = use_shared_state::<AppState>(cx).unwrap();
+pub(crate) fn AppLogicViewer() -> Element {
+    let app_state = consume_context::<Signal<AppState>>();
+    let mut recipe_result = use_signal::<Option<RecipeResult>>(|| None);
 
-    let recipe_result = use_state::<Option<RecipeResult>>(cx, || None);
-
-    cx.render(rsx! {
+    rsx! {
         button {
-            onclick: |_| {
-                let app_state = app_state.clone();
-                let recipe_result = recipe_result.clone();
-                cx.spawn({
+            onclick: move |_| {
+                spawn({
                     async move {
-                        let app_state = app_state.read();
-                        let result = annapurna_logic::recipe(app_state.recipes.clone(), app_state.inventory.clone());
+                        let result = annapurna_logic::recipe(app_state().recipes.clone(), app_state().inventory.clone());
                         web_sys::console::log_1(&wasm_bindgen::JsValue::from_str(&format!("{:?}", result)));
                         recipe_result.set(Some(result));
 
@@ -343,8 +335,8 @@ pub(crate) fn AppLogicViewer(cx: Scope) -> Element {
             "perform logic"
         }
 
-        if let Some(result) = recipe_result.get() {
-            rsx! {
+        if let Some(result) = recipe_result() {
+            {rsx! {
                 div {
                     h3 { "can make these recipes" }
                     ul {
@@ -369,7 +361,7 @@ pub(crate) fn AppLogicViewer(cx: Scope) -> Element {
                         }
                     }
                 }
-            }
+            }}
         }
-    })
+    }
 }

@@ -12,10 +12,10 @@ crate-type = ["cdylib"]
 [dependencies]
 annapurna-data = { path = "../data" }
 annapurna-logic = { path = "../logic" }
-dioxus = "0.4"
-dioxus-html = "0.4"
-dioxus-router = "0.4"
-dioxus-web = "0.4"
+dioxus = { version = "0.5", features = ["launch", "web"] }
+dioxus-html = "0.5"
+dioxus-router = "0.5"
+dioxus-web = "0.5"
 getrandom = { version = "0.2.8", features = ["js"] }
 js-sys = { workspace = true }
 reqwest = { workspace = true }
@@ -26,10 +26,11 @@ wasm-bindgen = { workspace = true }
 wasm-logger = "0.2.0"
 
 [dependencies.web-sys]
-version = "0.3.4"
+version = "0.3.68"
 features = [
     "console",
     "AbortController",
+    "AbortSignal",
     "CssStyleDeclaration",
     "Document",
     "Element",
@@ -39,6 +40,8 @@ features = [
     "Node",
     "Window",
     "RegistrationOptions",
+    "RequestCredentials",
+    "RequestInit",
     "ServiceWorkerGlobalScope",
     "ServiceWorkerRegistration",
     "ServiceWorkerState",

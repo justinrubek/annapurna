@@ -23,6 +23,8 @@
     };
     wasm-bindgen = {
       url = "github:justinrubek/wasm-bindgen";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.fenix.follows = "fenix";
     };
     wasm-bindgen-service-worker = {
       url = "github:justinrubek/wasm-bindgen-service-worker";
