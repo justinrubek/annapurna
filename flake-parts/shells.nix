@@ -18,7 +18,7 @@
       pkgs.cargo-udeps
       pkgs.cargo-nextest
       pkgs.bacon
-      pkgs.wasm-bindgen-cli
+      inputs'.wasm-bindgen.packages.wasm-bindgen-cli
       # formatting
       self'.packages.treefmt
       # database
