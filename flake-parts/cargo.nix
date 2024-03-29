@@ -74,11 +74,11 @@
 
         wasm-derivation = pkgs.stdenv.mkDerivation {
           name = "${name}-wasm";
-          buildInputs = [pkgs.wasm-bindgen-cli];
+          buildInputs = [inputs'.wasm-bindgen.packages.wasm-bindgen-cli];
           nativeBuildInputs = [pkgs.binaryen];
           src = "";
           buildCommand = ''
-            ${pkgs.wasm-bindgen-cli}/bin/wasm-bindgen \
+            ${inputs'.wasm-bindgen.packages.wasm-bindgen-cli}/bin/wasm-bindgen \
               ${cargo-derivation}/lib/${underscore_name}.wasm \
               --out-dir $out \
               --target ${wasm-bindgen-target} \
