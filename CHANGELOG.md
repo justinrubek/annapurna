@@ -2,6 +2,45 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [0.2.1](https://github.com/justinrubek/annapurna/compare/0.2.0..0.2.1) - 2024-03-30
+#### Bug Fixes
+- **(web)** properly link service worker from pages other than the root index - ([000d8cf](https://github.com/justinrubek/annapurna/commit/000d8cf0574e70084b0664b8d6497f39fad77d02)) - [@justinrubek](https://github.com/justinrubek)
+#### Build system
+- **(cargo)** update dioxus - ([28a971d](https://github.com/justinrubek/annapurna/commit/28a971db4fafd5e99a2a39c5eaefe11529c73d9a)) - [@justinrubek](https://github.com/justinrubek)
+- **(cargo)** cargo update - ([d0db254](https://github.com/justinrubek/annapurna/commit/d0db25404247249c0eef32e74ea560681ad19bb6)) - [@justinrubek](https://github.com/justinrubek)
+- **(cargo)** update axum to 0.7 - ([cb0ea66](https://github.com/justinrubek/annapurna/commit/cb0ea66f683c28f41b0ae2b0c87e7ebab7f410d4)) - [@justinrubek](https://github.com/justinrubek)
+- **(flake-parts/web)** include wasm modules from nix - ([8e76199](https://github.com/justinrubek/annapurna/commit/8e76199f842cac9ed2326836f516492520761b40)) - [@justinrubek](https://github.com/justinrubek)
+- **(nix)** update fenix input - ([ded34d6](https://github.com/justinrubek/annapurna/commit/ded34d6a44c017574fc29c2d6bcf91563b29b3a6)) - [@justinrubek](https://github.com/justinrubek)
+- **(nix)** add wasm-bindgen flake input - ([fdf3d49](https://github.com/justinrubek/annapurna/commit/fdf3d49a3818260e7e7c5c931071152d9d8a9a18)) - [@justinrubek](https://github.com/justinrubek)
+- **(nix)** move facts package into web file - ([33ccb3c](https://github.com/justinrubek/annapurna/commit/33ccb3cfafcde4919b78b1f2126ef784d30b64ea)) - [@justinrubek](https://github.com/justinrubek)
+- **(web)** provide rust service-worker in static-files - ([b9e7871](https://github.com/justinrubek/annapurna/commit/b9e7871b3ba9cbaf53d98defc8ed5c5bceb329fe)) - [@justinrubek](https://github.com/justinrubek)
+#### Continuous Integration
+- **(github/actions)** add container build action - ([c05ab3d](https://github.com/justinrubek/annapurna/commit/c05ab3dc735d40b6e575d100d902bed3ca142786)) - [@justinrubek](https://github.com/justinrubek)
+- **(github/actions)** add github release action - ([b42e21a](https://github.com/justinrubek/annapurna/commit/b42e21aa3d82cb80501317987967d6263410d6f7)) - [@justinrubek](https://github.com/justinrubek)
+- **(pre-commit)** add sqlx prepare hook - ([d38b481](https://github.com/justinrubek/annapurna/commit/d38b481d1149de2f19b08b18f9eafd6040687daa)) - [@justinrubek](https://github.com/justinrubek)
+#### Features
+- **(http)** add sqlx connection to axum server state - ([2409fcc](https://github.com/justinrubek/annapurna/commit/2409fcc8823aa938ae0d9b71ef5ebd4f2d9ceb50)) - [@justinrubek](https://github.com/justinrubek)
+- **(http)** add /health route - ([2859867](https://github.com/justinrubek/annapurna/commit/2859867a08d75e3e1badfd1f0d3a82d71db4e354)) - [@justinrubek](https://github.com/justinrubek)
+- **(postgres)** add sqlx and migrations - ([508a078](https://github.com/justinrubek/annapurna/commit/508a078c9189fdd192fa209d79f884eef729bc22)) - [@justinrubek](https://github.com/justinrubek)
+- **(service-worker)** check if token is expired - ([1f87496](https://github.com/justinrubek/annapurna/commit/1f874966c6a111996b54544fffc070e57a03e0b0)) - [@justinrubek](https://github.com/justinrubek)
+- **(service-worker)** implement fetch request interception in rust - ([99376dd](https://github.com/justinrubek/annapurna/commit/99376dd2dd0790d14506f5885819d454dc31add2)) - [@justinrubek](https://github.com/justinrubek)
+- **(service-worker)** redirect to home upon login - ([ca9bb66](https://github.com/justinrubek/annapurna/commit/ca9bb663e438eb36c13799e98ab51c1098220434)) - [@justinrubek](https://github.com/justinrubek)
+- **(service-worker)** Add key-value store - ([6810a64](https://github.com/justinrubek/annapurna/commit/6810a6486e16d0e5f41e9fd4c7a6cacb639d0a12)) - [@justinrubek](https://github.com/justinrubek)
+- **(service-workout)** implement Logout message - ([243cd4c](https://github.com/justinrubek/annapurna/commit/243cd4c2ee23f41291986fd1675a94587e177690)) - [@justinrubek](https://github.com/justinrubek)
+- **(services)** added postgres service - ([42dd383](https://github.com/justinrubek/annapurna/commit/42dd3836384083d179658c326a7902c5002d19e8)) - [@justinrubek](https://github.com/justinrubek)
+- allow creating and listing `inventory` objects - ([e26bb76](https://github.com/justinrubek/annapurna/commit/e26bb7621837f309d3fa57562a89861c49dce778)) - [@justinrubek](https://github.com/justinrubek)
+- add container image package - ([a22ddf7](https://github.com/justinrubek/annapurna/commit/a22ddf781cf0765d2153d35df14e055786eeffa8)) - [@justinrubek](https://github.com/justinrubek)
+- initialize service-worker crate - ([15801e9](https://github.com/justinrubek/annapurna/commit/15801e97f607bcd90d0819eacd574469286a554c)) - [@justinrubek](https://github.com/justinrubek)
+#### Miscellaneous Chores
+- remove javascript service-worker - ([53ba7d7](https://github.com/justinrubek/annapurna/commit/53ba7d7f8e9bcc7d72133f7f1c70589b83c05a3d)) - [@justinrubek](https://github.com/justinrubek)
+#### Refactoring
+- **(flake-parts/web)** parameterize the copying of wasm-modules - ([80c6979](https://github.com/justinrubek/annapurna/commit/80c6979c8cf7b32f303dfb24abc0dcc3ae02d311)) - [@justinrubek](https://github.com/justinrubek)
+- **(http)** dynamically determine login callback-url - ([7d2faeb](https://github.com/justinrubek/annapurna/commit/7d2faebf0ff2051cc392893a15e63ac14c2553d7)) - [@justinrubek](https://github.com/justinrubek)
+- **(service-worker)** rework service worker application boundaries - ([59cd96f](https://github.com/justinrubek/annapurna/commit/59cd96f2107a948a611aa410fa977796476c8e65)) - [@justinrubek](https://github.com/justinrubek)
+- rename wasm-modules to es-modules - ([94989e0](https://github.com/justinrubek/annapurna/commit/94989e0275ed2dcc4959184749e2ab0b5e5c4be5)) - [@justinrubek](https://github.com/justinrubek)
+
+- - -
+
 ## [0.2.0](https://github.com/justinrubek/annapurna/compare/0.1.0..0.2.0) - 2023-09-24
 #### Build system
 - **(cargo)** cargo update - ([039a8fc](https://github.com/justinrubek/annapurna/commit/039a8fcd59cc2bbb6a11684fe710d5078cdfda4a)) - [@justinrubek](https://github.com/justinrubek)

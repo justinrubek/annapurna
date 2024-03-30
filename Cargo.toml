@@ -7,20 +7,20 @@ edition = "2021"
 homepage = "https://github.com/justinrubek/annapurna"
 license = "MIT"
 repository = "https://github.com/justinrubek/annapurna"
-version = "0.2.0"
+version = "0.2.1"
 
 [workspace.dependencies]
 anyhow = "1.0.68"
-base64 = "0.21.4"
 axum = "0.7"
 axum-extra = "0.9"
+base64 = "0.21.4"
 js-sys = "0.3.61"
 lockpad-auth = "0.3.0"
 log = "0.4.20"
 notify = "5.1.0"
 ron = "0.8.0"
-serde_json = "1.0.87"
 serde-wasm-bindgen = "0.4"
+serde_json = "1.0.87"
 thiserror = "1.0.38"
 tower-http = "0.5.0"
 tracing = "0.1.37"
@@ -41,13 +41,13 @@ version = "0.11.20"
 features = ["rustls-tls", "json"]
 default-features = false
 
-[workspace.dependencies.sqlx]
-version = "0.7.3"
-features = ["runtime-tokio-rustls", "macros", "postgres", "chrono", "uuid"]
-
 [workspace.dependencies.serde]
 version = "1"
 features = ["derive"]
+
+[workspace.dependencies.sqlx]
+version = "0.7.3"
+features = ["runtime-tokio-rustls", "macros", "postgres", "chrono", "uuid"]
 
 [workspace.dependencies.tokio]
 version = "1"

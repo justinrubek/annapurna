@@ -1,0 +1,15 @@
+(
+    todos: [
+        (name: "Brush teeth"),
+        (name: "Eat breakfast"),
+        (name: "Go to work"),
+        (name: "Eat lunch"),
+        (name: "Go home"),
+        (name: "Eat dinner"),
+        (name: "Feed guinea pigs"),
+        (name: "Clean"),
+        (name: "Shower"),
+        (name: "Brush and floss"),
+        (name: "Go to bed")
+    ]
+)
