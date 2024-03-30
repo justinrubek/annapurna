@@ -64,7 +64,7 @@ dependencies = [
 
 [[package]]
 name = "annapurna"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "annapurna-data",
  "annapurna-http",
@@ -89,7 +89,7 @@ dependencies = [
 
 [[package]]
 name = "annapurna-data"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "ron 0.8.1",
  "serde",
@@ -97,7 +97,7 @@ dependencies = [
 
 [[package]]
 name = "annapurna-http"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "annapurna-data",
  "annapurna-models",
@@ -124,7 +124,7 @@ dependencies = [
 
 [[package]]
 name = "annapurna-logic"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "annapurna-data",
  "anyhow",
@@ -136,7 +136,7 @@ dependencies = [
 
 [[package]]
 name = "annapurna-models"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "chrono",
  "serde",
@@ -150,7 +150,7 @@ dependencies = [
 
 [[package]]
 name = "annapurna-service-worker"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "anyhow",
  "base64 0.21.7",
@@ -171,7 +171,7 @@ dependencies = [
 
 [[package]]
 name = "annapurna-ui"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "annapurna-data",
  "annapurna-logic",
@@ -192,7 +192,7 @@ dependencies = [
 
 [[package]]
 name = "annapurna-wasm"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "annapurna-logic",
  "tracing",
@@ -4104,7 +4104,7 @@ dependencies = [
 
 [[package]]
 name = "sqlx-ulid"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "rusty_ulid",
  "serde",

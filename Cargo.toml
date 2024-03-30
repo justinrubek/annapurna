@@ -7,7 +7,7 @@ edition = "2021"
 homepage = "https://github.com/justinrubek/annapurna"
 license = "MIT"
 repository = "https://github.com/justinrubek/annapurna"
-version = "0.2.1"
+version = "0.2.2"
 
 [workspace.dependencies]
 anyhow = "1.0.68"

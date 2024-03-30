@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [0.2.2](https://github.com/justinrubek/annapurna/compare/0.2.1..0.2.2) - 2024-03-30
+#### Continuous Integration
+- **(github/actions)** add write permissions to release action - ([7484c4c](https://github.com/justinrubek/annapurna/commit/7484c4cd45ff45139df7801dabc0d1787ac55609)) - [@justinrubek](https://github.com/justinrubek)
+
+- - -
+
 ## [0.2.1](https://github.com/justinrubek/annapurna/compare/0.2.0..0.2.1) - 2024-03-30
 #### Bug Fixes
 - **(web)** properly link service worker from pages other than the root index - ([000d8cf](https://github.com/justinrubek/annapurna/commit/000d8cf0574e70084b0664b8d6497f39fad77d02)) - [@justinrubek](https://github.com/justinrubek)
