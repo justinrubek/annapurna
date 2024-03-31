@@ -1,10 +1,6 @@
 use annapurna::config::Config;
 use annapurna_data::Facts;
-use async_watcher::{notify::RecursiveMode, AsyncDebouncer};
 use lockpad_auth::PublicKey;
-use std::path::Path;
-use tokio::time::Duration;
-use tracing::info;
 
 #[derive(clap::Args, Debug)]
 pub(crate) struct ServerCommand {
@@ -20,8 +16,6 @@ pub(crate) struct ServerCommand {
 pub(crate) enum ServerCommands {
     /// start the http server
     Http,
-    /// passthrough to `yarn run dev`, while also starting the http server
-    Dev,
 }
 
 impl ServerCommand {
@@ -59,92 +53,8 @@ impl ServerCommand {
 
         match self.command {
             ServerCommands::Http => server.run().await?,
-            ServerCommands::Dev => {
-                info!("Launching dev server");
-                // Determine the root of the repo so the command can be run from any directory
-                let (path, _trust) = gix_discover::upwards(Path::new("."))?;
-                let (_repo, worktree) = path.into_repository_and_work_tree_directories();
-                let worktree = worktree.expect("no worktree directory found");
-
-                let files_path = worktree.join("public");
-                let crates_path = worktree.join("crates");
-
-                let (mut debouncer, mut file_events) = AsyncDebouncer::new_with_channel(
-                    Duration::from_secs(1),
-                    Some(Duration::from_secs(1)),
-                )
-                .await?;
-
-                [files_path, crates_path].iter().for_each(|p| {
-                    debouncer
-                        .watcher()
-                        .watch(p.as_ref(), RecursiveMode::Recursive)
-                        .unwrap();
-                });
-
-                // build the static files
-                let static_path = build_static(&worktree).await?;
-
-                // spawn another task that is responsible for running the server
-                // it will receive a message when it is time to restart the server
-                let mut server = server.clone();
-                server.change_dir(static_path);
-
-                let mut task = tokio::spawn(server.clone().run());
-
-                loop {
-                    tokio::select! {
-                        events = file_events.recv() => {
-                            match events {
-                                Some(events) => {
-                                    info!(?events, "file changed, restarting server");
-
-                                    // Run nix build
-                                    let static_path = build_static(&worktree).await?;
-
-                                    let mut server = server.clone();
-                                    server.change_dir(static_path);
-
-                                    // Restart server
-                                    task.abort();
-                                    task = tokio::spawn(server.clone().run());
-                                }
-                                None => {
-                                    tracing::error!("file watcher channel closed, exiting");
-                                    break;
-                                }
-                            }
-                        }
-                        result = &mut task => {
-                            info!(?result, "http server exited");
-                            result??;
-                        }
-                    }
-                }
-            }
         };
 
         Ok(())
     }
-}
-
-async fn build_static(
-    worktree: &std::path::Path,
-) -> Result<std::path::PathBuf, Box<dyn std::error::Error>> {
-    let out_path = worktree.join(".static");
-    info!(?out_path, "building static files with nix");
-
-    tokio::process::Command::new("nix")
-        .args([
-            "build",
-            ".#static-files",
-            "--out-link",
-            out_path.to_str().unwrap(),
-        ])
-        .current_dir(worktree)
-        .spawn()?
-        .wait_with_output()
-        .await?;
-
-    Ok(out_path.join("public"))
 }
