@@ -56,7 +56,7 @@
         name = "serve-annapurna";
         runtimeInputs = [pkgs.miniserve];
         text = ''
-          miniserve ${static-files}/public "$@"
+          exec miniserve ${static-files}/public "$@"
         '';
       };
     };
