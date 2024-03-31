@@ -2,6 +2,11 @@
   description = "A rust project";
 
   inputs = {
+    awatch = {
+      url = "github:justinrubek/async-watcher";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.fenix.follows = "fenix";
+    };
     nixpkgs.url = "nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
     fenix = {
