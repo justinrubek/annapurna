@@ -59,6 +59,13 @@
           exec miniserve ${static-files}/public "$@"
         '';
       };
+      watch = pkgs.writeShellApplication {
+        name = "watch-annapurna";
+        runtimeInputs = [inputs'.awatch.packages.awatch];
+        text = ''
+          awatch './{crates,Cargo.toml,Cargo.lock,public}' nix run .#serve
+        '';
+      };
     };
 
     apps = {
