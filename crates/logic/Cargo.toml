@@ -5,10 +5,10 @@ edition.workspace = true
 
 [dependencies]
 annapurna-data = { path = "../data" }
-ascent = "0.4.0"
+ascent = "0.6"
 serde.workspace = true
 # serde_json = "1.0.87"
 thiserror.workspace = true
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-ascent = { version = "0.4.0", features = ["wasm-bindgen"] }
+ascent = { version = "0.6", features = ["wasm-bindgen"] }
