@@ -1,6 +1,8 @@
 #![allow(clippy::clone_on_copy)]
+#![allow(clippy::collapsible_if)]
 #![allow(clippy::let_unit_value)]
 #![allow(clippy::just_underscores_and_digits)]
+#![allow(clippy::unused_enumerate_index)]
 #![allow(clippy::unused_unit)]
 
 use annapurna_data::types;
