@@ -16,8 +16,20 @@
       };
       copyToRoot = pkgs.buildEnv {
         name = "root";
-        paths = [self'.packages.static-files self'.packages.facts pkgs.cacert];
-        pathsToLink = ["/public" "/facts" "/etc/"];
+        paths = [
+          self'.packages.static-files
+          self'.packages.facts
+          self'.packages.sqlx-cli
+          self'.packages.sqlx-migrations
+          pkgs.cacert
+        ];
+        pathsToLink = [
+          "/bin"
+          "/etc"
+          "/facts"
+          "/migrations"
+          "/public"
+        ];
       };
     };
   };
