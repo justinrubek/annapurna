@@ -12,11 +12,13 @@
     packages."annapurna/docker" = nix2container.buildImage {
       name = "annapurna";
       config = {
-        entrypoint = ["${self'.packages.cli}/bin/annapurna-cli"];
+        Cmd = ["/bin/annapurna-cli"];
+        WorkingDir = "/app";
       };
       copyToRoot = pkgs.buildEnv {
         name = "root";
         paths = [
+          self'.packages.cli
           self'.packages.static-files
           self'.packages.facts
           self'.packages.sqlx-cli
