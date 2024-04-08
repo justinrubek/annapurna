@@ -54,9 +54,10 @@
       inherit static-files facts;
       serve = pkgs.writeShellApplication {
         name = "serve-annapurna";
-        runtimeInputs = [pkgs.miniserve];
+        runtimeInputs = [self'.packages.cli];
         text = ''
-          exec miniserve ${static-files}/public "$@"
+          export ANNAPURNA_STATIC_PATH=${static-files}/public
+          exec annapurna-cli server http
         '';
       };
       watch = pkgs.writeShellApplication {
