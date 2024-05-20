@@ -20,7 +20,7 @@
     ];
     withExtraPackages = base: base ++ extraPackages;
 
-    craneLib = inputs.crane.lib.${system}.overrideToolchain self'.packages.rust-toolchain;
+    craneLib = (inputs.crane.mkLib pkgs).overrideToolchain self'.packages.rust-toolchain;
 
     commonArgs = rec {
       src = inputs.nix-filter.lib {
@@ -136,7 +136,7 @@
           inherit cargoArtifacts;
           partitions = 1;
           partitionType = "count";
-          cargoExtraArgs = "--exclude annapurna-wasm --exclude annapurna-ui --workspace";
+          cargoNextestExtraArgs = "--exclude annapurna-ui --workspace";
         });
     };
   in rec {
