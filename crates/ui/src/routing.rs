@@ -1,5 +1,5 @@
 use crate::{
-    components::{IngredientCreate, InventoryCreate, Recipe, RecipeCreate},
+    components::{IngredientCreate, InventoryCreate, Recipe, RecipeCreate, TaskCreate, TodoTask},
     state::AppState,
     util,
 };
@@ -23,6 +23,8 @@ pub(crate) enum Route {
     AppInventory {},
     #[route("/app/logic/viewer")]
     AppLogicViewer {},
+    #[route("/app/todo")]
+    AppTodo {},
     #[route("/debug")]
     DebugPage {},
 }
@@ -85,6 +87,12 @@ pub(crate) fn Nav() -> Element {
                 class: "navlink",
                 to: Route::AppLogicViewer {},
                 "logic viewer"
+            }
+            Link {
+                active_class: "active",
+                class: "navlink",
+                to: Route::AppTodo {},
+                "todo"
             }
             Link {
                 active_class: "active",
@@ -362,6 +370,64 @@ pub(crate) fn AppLogicViewer() -> Element {
                     }
                 }
             }}
+        }
+    }
+}
+
+#[allow(non_snake_case)]
+pub(crate) fn AppTodo() -> Element {
+    let mut app_state = use_context::<Signal<AppState>>();
+    let mut creating_todo = use_signal(|| false);
+
+    rsx! {
+        div {
+            h1 { "Todo" }
+
+            button {
+                onclick: move |_| creating_todo.set(true),
+                "add todo"
+            }
+            button {
+                onclick: move |_| {
+                    let filename = "todo.ron";
+                    let text = ron::ser::to_string_pretty(&app_state().todo, Default::default()).unwrap();
+                    util::download_string(filename, &text).expect("failed to download");
+                },
+                "export todos"
+            }
+
+            if creating_todo() {
+                {rsx! {
+                    TaskCreate {
+                        on_create: move |todo| {
+                            app_state.write().add_todo(todo);
+                            creating_todo.set(false);
+                        },
+                        on_cancel: move |_| creating_todo.set(false),
+                    }
+                }}
+            }
+
+            {app_state().todo.iter().cloned().map(move |todo| {
+                let cloned_todo = todo.clone();
+                rsx! {
+                   div {
+                       key: "{todo.description}",
+                       TodoTask {
+                           task: todo.clone(),
+                           on_complete: move |_| {
+                               app_state.write().complete_todo(cloned_todo.clone());
+                           },
+                       }
+                       button {
+                           onclick: move |_| {
+                               app_state.write().remove_todo(todo.clone());
+                           },
+                           "remove"
+                       }
+                   }
+                }
+            })}
         }
     }
 }
