@@ -1,7 +1,7 @@
-use std::collections::HashSet;
-
-use annapurna_data::types::{Ingredient, Recipe as RecipeData};
+use annapurna_data::types::{Ingredient, Recipe as RecipeData, Task as TaskData};
 use dioxus::prelude::*;
+use std::{collections::HashSet, time::Duration};
+use wasm_bindgen::JsValue;
 
 #[derive(Clone, PartialEq, Props)]
 pub(crate) struct RecipeProps {
@@ -169,6 +169,135 @@ pub(crate) fn InventoryCreate(props: CreateFormProps<Ingredient>) -> Element {
             button {
                 onclick: move |_| props.on_cancel.call(()),
                 "cancel"
+            }
+        }
+    }
+}
+
+#[allow(non_snake_case)]
+pub(crate) fn TaskCreate(props: CreateFormProps<TaskData>) -> Element {
+    let mut description = use_signal(|| "".to_string());
+    let mut duration = use_signal(|| "".to_string());
+    let mut start_time = use_signal(|| "".to_string());
+
+    rsx! {
+        div {
+            style: r#"display: flex; flex-direction: column; border: 1px solid black; padding: 1rem;"#,
+
+            h3 { "Create Task" }
+
+            label { r#for: "description", "Description" }
+            input {
+                id: "description",
+                value: "{description}",
+                oninput: move |event| description.set(event.value().clone()),
+            }
+
+            label { r#for: "duration", "Duration" }
+            input {
+                id: "duration",
+                value: "{duration}",
+                r#type: "number",
+                oninput: move |event| duration.set(event.value().clone()),
+            }
+
+            label { r#for: "start_time", "Start Time" }
+            input {
+                id: "start_time",
+                value: "{start_time}",
+                r#type: "time",
+                oninput: move |event| start_time.set(event.value().clone()),
+            }
+
+            button {
+                onclick: move |_| {
+                    let duration = if duration().is_empty() {
+                        None
+                    } else {
+                        let duration_quantity: u64 = duration().parse().ok().unwrap();
+                        let duration_seconds = duration_quantity * 60;
+                        Some(Duration::new(duration_seconds, 0))
+                    };
+                    let start_time = if start_time().is_empty() {
+                        None
+                    } else {
+                        web_sys::console::log_1(&JsValue::from_str(&start_time()));
+                        Some(start_time().parse().ok().unwrap())
+                    };
+
+                    let task = TaskData {
+                        description: description(),
+                        completed: false,
+                        duration,
+                        start_time,
+                        completion_time: None,
+                    };
+                    props.on_create.call(task);
+                },
+                "create"
+            }
+            button {
+                onclick: move |_| props.on_cancel.call(()),
+                "cancel"
+            }
+        }
+    }
+}
+
+#[derive(Clone, PartialEq, Props)]
+pub struct TodoTaskProps {
+    pub task: TaskData,
+    pub on_complete: EventHandler<()>,
+}
+
+#[allow(non_snake_case)]
+pub fn TodoTask(props: TodoTaskProps) -> Element {
+    rsx! {
+        div {
+            style: r#"display: flex; flex-direction: column; border: 1px solid black; padding: 1rem;"#,
+
+            h3 { "{props.task.description}" }
+            {if props.task.completed {
+                rsx!{
+                    label { "Completed" }
+                }
+            } else {
+                rsx!{
+                    label { "Not Completed" }
+                }
+            }}
+
+            {if let Some(duration) = props.task.duration {
+                rsx!{
+                    label { r#for: "duration", "Duration" }
+                    input {
+                        id: "duration",
+                        value: format!("{duration:?}"),
+                        disabled: true,
+                    }
+                }
+            } else {
+                rsx!{}
+            }}
+
+            {if let Some(start_time) = props.task.start_time {
+                rsx!{
+                    label { r#for: "start_time", "Start Time" }
+                    input {
+                        id: "start_time",
+                        value: start_time.to_string(),
+                        disabled: true,
+                    }
+                }
+            } else {
+                rsx!{}
+            }}
+
+            button {
+                onclick: move |_| {
+                    props.on_complete.call(());
+                },
+                "complete"
             }
         }
     }

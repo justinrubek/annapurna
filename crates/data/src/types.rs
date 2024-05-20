@@ -1,5 +1,6 @@
+use chrono::{DateTime, NaiveTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::{collections::HashMap, time::Duration};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Ingredient {
@@ -90,3 +91,12 @@ impl PartialEq for Recipe {
     }
 }
 impl Eq for Recipe {}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub struct Task {
+    pub description: String,
+    pub completed: bool,
+    pub duration: Option<Duration>,
+    pub start_time: Option<NaiveTime>,
+    pub completion_time: Option<DateTime<Utc>>,
+}
