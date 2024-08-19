@@ -1,5 +1,7 @@
 pub(crate) mod server;
 
+use std::path::PathBuf;
+
 use server::ServerCommand;
 
 #[derive(clap::Parser, Debug)]
@@ -25,4 +27,5 @@ pub(crate) struct Command {
 #[derive(clap::Subcommand, Debug)]
 pub(crate) enum BasicCommands {
     Run,
+    FoodData { file: PathBuf },
 }

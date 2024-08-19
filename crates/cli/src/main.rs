@@ -1,6 +1,7 @@
 use annapurna_data::Facts;
 use annapurna_logic::recipe;
 use clap::Parser;
+use std::collections::HashSet;
 
 pub mod commands;
 use commands::{BasicCommands, Commands};
@@ -20,6 +21,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let missing = res.missing;
                 println!("Can make: {can_make:?}");
                 println!("Missing: {missing:?}");
+            }
+            BasicCommands::FoodData { file, .. } => {
+                let data: fooddata::FoundationFoods = {
+                    let contents = tokio::fs::read_to_string(file).await?;
+                    serde_json::from_str(&contents)?
+                };
+                let mut nutrients = HashSet::new();
+                data.foundation_foods.iter().for_each(|food| {
+                    let macros = food.macros();
+                    println!("{}: {macros:?}\n", food.description);
+                    println!("{:?}\n", food.food_portions);
+                    food.food_nutrients.iter().for_each(|nutrient| {
+                        nutrients.insert(nutrient.nutrient.name.clone());
+                    });
+                });
+
+                // nutrients.iter().for_each(|nutrient| println!("{nutrient:?}"));
             }
         },
         Commands::Server(server) => server.run().await?,
