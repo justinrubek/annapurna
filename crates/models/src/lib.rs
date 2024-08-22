@@ -1,9 +1,11 @@
 use serde::{Deserialize, Serialize};
 use sqlx_ulid::Ulid;
 
+pub mod chores;
 pub mod entity;
 pub mod error;
 pub mod inventory;
+pub mod people;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Pagination {
