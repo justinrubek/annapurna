@@ -1,0 +1,38 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                chore_id::uuid as \"chore_id: Ulid\",\n                name,\n                description,\n                rrule\n            FROM \n                chores\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "chore_id: Ulid",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "rrule",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "3728244a3faaa90a6e31c7b6eb80ae75cbe57d9e02b4399946ec75357d7eac84"
+}
